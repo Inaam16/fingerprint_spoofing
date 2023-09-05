@@ -189,3 +189,126 @@ def LR(trainData, trainLabel, testData, testLabel, lamb):
     posterioProb = numpy.dot(W.T, testData) + bias
     predictLabel = (posterioProb > 0)*1
     return testLabel == predictLabel
+
+
+
+# GMM LAB10
+# ==== ====
+import numpy
+import scipy.special
+
+
+
+
+Data = numpy.load("C:/Users/inaam/Downloads/GMM_data_4D.npy", allow_pickle= True)
+Label = numpy.load("C:/Users/inaam/Downloads/commedia_labels_infpar.npy", allow_pickle=True)
+
+
+def vcol(vector):
+    return vector.reshape((vector.shape[0],1)) 
+
+def vrow(vector):
+    return vector.reshape((1,vector.shape[0]))
+
+
+
+def logPDF_Gau_ND(X, mu, Covariance): 
+    centredX = X-mu
+    const = X.shape[0]*numpy.log(2*numpy.pi)
+    CovLambda = scipy.linalg.inv(Covariance)
+    logDetCov = numpy.linalg.slogdet(Covariance)[1]
+    exp = (centredX * numpy.dot(CovLambda, centredX)).sum(0)
+    return (-0.5)*(const + logDetCov + exp)
+
+"""
+
+
+We compute a matrix S
+for the cell (1,1):
+      => we have log(N(x1|mu1, sigma1)) + log(w1)
+for the cell (1,2):
+      => we have log(N(x1|mu2, sigma2)) + log(w2)
+
+
+"""
+
+def logpdf_GMM(X, gmm):
+    # S is a matrix of number of rows = number of classes
+    # number of columns = number of samples
+    S = numpy.zeros((len(gmm), X.shape[1]))
+    for i in range(X.shape[1]):
+        for(idx, component) in enumerate(gmm):
+            S[idx, i] = logPDF_Gau_ND(X[:, i:i+1], component[1], component[2]) + numpy.log(component[0])
+    return S, scipy.special.logsumexp(S, axis=0)
+
+
+#EM algorithm has 2 steps:
+#   computing the responsibilities for each component for each sample
+#   updating the model parameters  
+def EM(X, gmm):
+    limit = 1e-6
+    loss_new = None
+    loss_old = None
+    
+    while loss_old is None or loss_new - loss_old > limit:
+        loss_old = loss_new
+        S_j = numpy.zeros((len(gmm), X.shape[1]))
+        for idx in range(len(gmm)):
+            S_j[idx, :] = logPDF_Gau_ND(X, gmm[idx][1], gmm[idx][2]) + numpy.log(gmm[idx][0])
+        S_m = vrow(scipy.special.logsumexp(S_j, axis=0))
+        
+        # S_j, S_m = logpdf_GMM(X, gmm)
+        S_p = numpy.exp(S_j - S_m)
+        loss_new = numpy.mean(S_m)
+        # M-Step
+        Z = numpy.sum(S_p, axis=1)
+
+        F = numpy.zeros((X.shape[0], len(gmm)))
+        for idx in range(len(gmm)):
+            F[:, idx] = numpy.sum(S_p[idx, :]*X, axis=1)
+        
+        S = numpy.zeros((X.shape[0], X.shape[0], len(gmm)))
+        for idx in range(len(gmm)):
+            S[:, :, idx] = numpy.dot(S_p[idx, :]*X, X.T)
+        
+        mu_new = F/Z
+        C_new = S/Z
+
+        for idx in range(len(gmm)):
+            C_new[:, :, idx] -= numpy.dot(vcol(mu_new[:, idx]), vrow(mu_new[:, idx]))
+
+
+        w_new = Z/numpy.sum(Z)
+
+        gmm_new = [((w_new[idx]), vcol(mu_new[:, idx]), C_new[:, :, idx]) for idx in range(len(gmm))]
+        gmm = gmm_new
+        #print(loss_new)
+    return gmm_new
+
+def LBG(X, gmm, n, alpha):
+    gmm_init = EM(X, gmm)
+
+    for i in range(n):
+        print(i)
+        gmm_new = []
+        for g in range(len(gmm_init)):
+            w_new = gmm_init[g][0]/2
+            C_g = gmm_init[g][2]
+            u, s, _ = numpy.linalg.svd(C_g)
+            d = u[:, 0:1]*s[0]**0.5 * alpha
+            gmm_new.append((w_new, gmm_init[g][1] + d, C_g))
+            gmm_new.append((w_new, gmm_init[g][1] - d, C_g))
+            
+        gmm_init = EM(X, gmm_new)
+    return gmm_init
+
+if __name__ == "__main__":
+
+    gmm_init = [[0.3333333333333333, [[0.0], [1.0], [-1.0], [0.5]], [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]], [0.3333333333333333, [[1.0], [0.5], [1.0], [2.5]], [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]], [0.3333333333333333, [[-3.5], [-1.5], [-3.0], [-1.5]], [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]]]
+    #gmm_final = EM(Data, gmm_init)
+    #print(gmm_final)
+    gmm_final = LBG(Data, gmm_init, 2, 0.1)
+    print(gmm_final)
+
+
+# ==== ====
