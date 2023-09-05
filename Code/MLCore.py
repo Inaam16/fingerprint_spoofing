@@ -194,6 +194,19 @@ def LR(trainData, trainLabel, testData, testLabel, lamb):
 
 # GMM LAB10
 # ==== ====
+"""
+GMM
+
+weighted sum of N gaussians
+
+logpdf_GMM is a function that computes the density of a GMM for a set of samples
+
+gmm = [{w1, mu1, C1}, {w2, mu2, C2}, ...]
+
+
+"""
+
+
 import numpy
 import scipy.special
 
@@ -245,7 +258,7 @@ def logpdf_GMM(X, gmm):
 #EM algorithm has 2 steps:
 #   computing the responsibilities for each component for each sample
 #   updating the model parameters  
-def EM(X, gmm):
+def EM(X, gmm, psi):
     limit = 1e-6
     loss_new = None
     loss_old = None
@@ -256,7 +269,7 @@ def EM(X, gmm):
         for idx in range(len(gmm)):
             S_j[idx, :] = logPDF_Gau_ND(X, gmm[idx][1], gmm[idx][2]) + numpy.log(gmm[idx][0])
         S_m = vrow(scipy.special.logsumexp(S_j, axis=0))
-        
+
         # S_j, S_m = logpdf_GMM(X, gmm)
         S_p = numpy.exp(S_j - S_m)
         loss_new = numpy.mean(S_m)
@@ -281,15 +294,30 @@ def EM(X, gmm):
         w_new = Z/numpy.sum(Z)
 
         gmm_new = [((w_new[idx]), vcol(mu_new[:, idx]), C_new[:, :, idx]) for idx in range(len(gmm))]
+
+        for i in range(len(gmm_new)):
+         C_new = gmm_new[i][2]
+         u, s, _ = numpy.linalg.svd(C_new)
+         s[s < psi] = psi
+         gmm_new[i] = (gmm_new[i][0], gmm_new[i][1], numpy.dot(u, vcol(s)*u.T))
         gmm = gmm_new
         #print(loss_new)
     return gmm_new
 
-def LBG(X, gmm, n, alpha):
-    gmm_init = EM(X, gmm)
+def LBG(X, gmm, n, alpha, psi):
+    
+
+    for i in range(len(gmm_init)):
+        C_new = gmm_init[i][2]
+        u, s, _ = numpy.linalg.svd(C_new)
+        s[s < psi] = psi
+        gmm_init[i] = (gmm_init[i][0], gmm_init[i][1], numpy.dot(u, vcol(s)*u.T))
+    
+    gmm_init = EM(X, gmm, psi)
 
     for i in range(n):
         print(i)
+        print(gmm_init)
         gmm_new = []
         for g in range(len(gmm_init)):
             w_new = gmm_init[g][0]/2
@@ -297,17 +325,16 @@ def LBG(X, gmm, n, alpha):
             u, s, _ = numpy.linalg.svd(C_g)
             d = u[:, 0:1]*s[0]**0.5 * alpha
             gmm_new.append((w_new, gmm_init[g][1] + d, C_g))
-            gmm_new.append((w_new, gmm_init[g][1] - d, C_g))
-            
+            gmm_new.append((w_new, gmm_init[g][1] - d, C_g))  
         gmm_init = EM(X, gmm_new)
     return gmm_init
 
 if __name__ == "__main__":
 
-    gmm_init = [[0.3333333333333333, [[0.0], [1.0], [-1.0], [0.5]], [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]], [0.3333333333333333, [[1.0], [0.5], [1.0], [2.5]], [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]], [0.3333333333333333, [[-3.5], [-1.5], [-3.0], [-1.5]], [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]]]
+    gmm_init = [[0.3333333333333333, [[-2.0]], [[1.0]]], [0.3333333333333333, [[0.0]], [[1.0]]], [0.3333333333333333, [[2.0]], [[1.0]]]]
     #gmm_final = EM(Data, gmm_init)
     #print(gmm_final)
-    gmm_final = LBG(Data, gmm_init, 2, 0.1)
+    gmm_final = LBG(Data, gmm_init, 1, 0.1)
     print(gmm_final)
 
 
