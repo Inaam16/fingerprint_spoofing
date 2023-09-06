@@ -15,6 +15,11 @@ def muCov(Data):
     Covariance = numpy.dot(DataCentered,DataCentered.T)/Data.shape[1]
     return mu, Covariance
 
+# effective prior computation
+def compute_eff_prior(prior, Cfn, Cfp):
+    return (prior*Cfn)/(prior*Cfn + (1-prior)*Cfp)
+
+
 # applies Principal Component Analysis to the Data and returns the #dim most important dimensions
 def PCA(Data, dim):
     Covariance = muCov(Data)[1]
