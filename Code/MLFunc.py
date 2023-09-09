@@ -1,12 +1,11 @@
 import numpy
-import scipy
 import MLCore as MLCore
 priorProbability = 0.5
 
 def kfoldRes(function):
     Data = numpy.load('Datasets/mainData.npy', allow_pickle=True)
     Label = numpy.load('Datasets/mainLabels.npy', allow_pickle=True)
-    
+
     PCAaccuracy = applyPrePro(Data, Label, priorProbability, 'PCA', function)
     idxPCA = numpy.argmax(PCAaccuracy)
     bestPCA = PCAaccuracy[idxPCA]
@@ -35,7 +34,8 @@ def z_score(D):
     standardFeatures = numpy.std(D,0)
 
     processedD = D - meanFeatures / standardFeatures
-    return meanFeatures, standardFeatures, processedD 
+    return meanFeatures, standardFeatures, processedD
+
 
 def applyPrePro(Data, Label, priorProbability, name, function):
     parentAccuracy = MLCore.k_fold(Data, Label, [priorProbability, 1-priorProbability], function)

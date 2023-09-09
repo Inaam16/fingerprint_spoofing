@@ -6,7 +6,7 @@ def compute_conf_matrix(predictLabel, Label):
     conf_matrix = numpy.zeros((2,2))
     for i in range(2):
         for j in range(2):
-            conf_matrix[i,j] = ( 1 * numpy.bitwise_and(predictLabel == i, Label== j)).sum()
+            conf_matrix[i,j] = (1 * numpy.bitwise_and(predictLabel == i, Label== j)).sum()
     return conf_matrix
 
 
