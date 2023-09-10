@@ -7,6 +7,9 @@ from Metrics import *
 from functools import partial
 import matplotlib.pyplot as plt
 
+
+n_class = len(cnst.CLASS_NAMES)
+
 def GAU_logpdf_ND(x, mu, C):
     M = x.shape[0]
     _, logSigma = np.linalg.slogdet(C)
@@ -15,7 +18,7 @@ def GAU_logpdf_ND(x, mu, C):
         logN = (
             -M / 2 * np.log(2 * np.pi)
             - 0.5 * logSigma
-            - 0.5 * np.dot(np.dot((x - mu).T, numpy.linalg.inv(C)), (x - mu))
+            - 0.5 * np.dot(np.dot((x - mu).T, np.linalg.inv(C)), (x - mu))
         )
     else:
         logN = (
@@ -38,7 +41,7 @@ def compute_llr(s):
 def MVG(DTR, LTR, DTE, LTE, pi, Cfp, Cfn):
     mu = []
     sigma = []
-    n_class = len(cnst.CLASS_NAMES)
+    
     # Compute mean and covariance for each class
     for c in range(n_class):
         m, s = mean_and_covariance(DTR[:, LTR == c])
@@ -89,7 +92,7 @@ def tied_MVG(DTR, LTR, DTE, LTE, pi, Cfp, Cfn):
 
     # Compute mean and covariance for each class
     for c in range(n_class):
-        m, s = mean_and_covariance_matrix(DTR[:, LTR == c])
+        m, s = mean_and_covariance(DTR[:, LTR == c])
         mu.append(m)
         # Compute the tied covariance matrix by averaging all covariance matrixes
         tied_sigma += sum(LTR == c) / DTR.shape[1] * s
@@ -116,7 +119,7 @@ def tied_naive_MVG(DTR, LTR, DTE, LTE, pi, Cfp, Cfn):
 
     # Compute mean and covariance for each class
     for c in range(n_class):
-        m, s = mean_and_covariance_matrix(DTR[:, LTR == c])
+        m, s = mean_and_covariance(DTR[:, LTR == c])
         mu.append(m)
         tied_sigma += sum(LTR == c) / DTR.shape[1] * ( s * np.eye(s.shape[0])) 
     
@@ -181,14 +184,15 @@ def k_fold_cross_validation(D, L, classifier, k, pi, Cfp, Cfn, preprocessor=None
 
 
 if __name__ == "__main__":
-    D, L = load("../Train.txt")
+    D, L = load("./Train.txt")
+    # DTE, LTE = load("../Test.txt")
 
     score = []
     for i in range(1, 11):
         preprocessor = partial(PCA_preproccessor, dim=i)
         score.append(
             k_fold_cross_validation(
-                D, L, naive_Bayes, 5, 0.5, 10, 1, seed=0, preprocessor=preprocessor
+                D, L, tied_MVG, 5, 0.5, 10, 1, seed=0, preprocessor=preprocessor
             )
         )
         print(i, score[-1])
