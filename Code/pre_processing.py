@@ -16,6 +16,13 @@ def PCA(Data, dim, *, components=False):
     return DTR
 
 
+def principal_components(Data, dim):
+    """Apply Principal Component Analysis to the Data and return the dim most important dimensions"""
+    mu, cov = mean_and_covariance(Data)
+    eigen_values, eigen_vectors = np.linalg.eigh(cov)
+    dim_eigen_vects = eigen_vectors[:, ::-1][:, 0:dim]
+    dim_eigen_vals = eigen_values[::-1][0:dim]
+    return dim_eigen_vects, dim_eigen_vals
 
 
 
@@ -32,14 +39,6 @@ def PCA(Data, dim, *, components=False):
 #     DTR = np.dot(dimeigVect.T, Data)
 #     return DTR, dimeigVect
 
-
-# def principal_components(Data, dim):
-#     """Apply Principal Component Analysis to the Data and return the dim most important dimensions"""
-#     mu, cov = mean_and_covariance(Data)
-#     eigen_values, eigen_vectors = np.linalg.eigh(cov)
-#     dim_eigen_vects = eigen_vectors[:, ::-1][:, 0:dim]
-#     dim_eigen_vals = eigen_values[::-1][0:dim]
-#     return dim_eigen_vects, dim_eigen_vals
 
 
 # def SwSb(Data, Label):
