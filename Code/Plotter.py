@@ -10,6 +10,9 @@ import Metrics as metrics
 from Utilities import *
 
 
+
+
+#Plotting the histograms  of all features 
 def plot_hist_all_features(Data, Label, title):
     Data0 = Data[:, Label == 0]
     Data1 = Data[:, Label == 1]
@@ -37,29 +40,12 @@ def plot_hist_all_features(Data, Label, title):
         )
         plt.legend(fontsize="10")
         plt.tight_layout()  # Use with non-default font size to keep axis label inside the figure
-        plt.savefig(f"../Visualization/{title}-hist{dIdx}.png")
+        plt.savefig(f"../Visualization/Histograms/{title}-hist{dIdx}.png")
     plt.close("all")
 
 
-def plot_scatter_all_features(D, L, title):
-    D0 = D[:, L == 0]
-    D1 = D[:, L == 1]
 
-    for dIdx1 in range(cnst.N_ATTR):
-        for dIdx2 in range(cnst.N_ATTR):
-            if dIdx1 == dIdx2:
-                continue
-            plt.figure()
-            plt.xlabel("Attribute %d" % dIdx1)
-            plt.ylabel("Attribute %d" % dIdx2)
-            plt.scatter(D0[dIdx1, :], D0[dIdx2, :], label="spoofed fingerprint")
-            plt.scatter(D1[dIdx1, :], D1[dIdx2, :], label="authentic fingerprint")
-            plt.legend()
-            plt.tight_layout()  # Use with non-default font size to keep axis label inside the figure
-            plt.savefig(f"../Visualization/scatter_%d_%d.pdf" % (title, dIdx1, dIdx2))
-        plt.close("all")
-
-
+#Drawing scatter plots of features two by two and histograms for each feature
 def draw_scatterplots(D, L):
     # Plots of the different attribute pairs for each class
     fig, axes = plt.subplots(
@@ -75,35 +61,19 @@ def draw_scatterplots(D, L):
             else:  # Draw scatterplot
                 for c, name in enumerate(cnst.CLASS_NAMES):
                     ax.scatter(D[i, L == c], D[j, L == c], alpha=0.5)
-    plt.savefig(f"../Visualization/scatterplots", bbox_inches="tight")
+    plt.savefig(f"../Visualization/Scatter/scatterplots", bbox_inches="tight")
     plt.close()
 
-
+#Heat map function for correlations
 def heatmap(X, label: str = ""):
     plt.figure()
     sb.heatmap(np.corrcoef(X))
-    plt.savefig(f"../Visualization/Heatmaps-{label}.png")
+    plt.savefig(f"../Visualization/Heatmaps/Heatmaps-{label}.png")
     plt.close()
 
 
-def plot_scatter(D, L, title):
-    # Make data that will be plotted
-    label1 = L == 1
-    label0 = L == 0
 
-    Data_0 = D[:, label0]
-    Data_1 = D[:, label1]
-
-    plt.figure()
-    plt.scatter(Data_0[0, :], Data_0[1, :], label="spoofed fingerprint", s=16, alpha=0.5)
-    plt.scatter(Data_1[0, :], Data_1[1, :], label="authentic fingerprint", s=16, alpha=0.5)
-
-    # plt.title(title)
-    plt.legend()
-    plt.savefig("../Visualization/Scatter-PCA_2.png", dpi=200)
-    plt.close()
-
-
+#Linear discriminant analysis
 def LDA(D, L, directions=1):
     "Perform LDA on a dataset D where each column is a sample and each row a feature then plot it"
     NC = 2  # number of classes in the dataset
@@ -140,7 +110,7 @@ def LDA(D, L, directions=1):
     ]  # matrix W is the one that makes possible to perform LDA projecting samples in the new space
     return np.dot(W.T, D)  # dataset after LDA
 
-
+#Two Plots LDA 
 def plot_hist(D, L, title):
     D0 = D[:, L == 0]
     D1 = D[:, L == 1]
@@ -151,11 +121,11 @@ def plot_hist(D, L, title):
     plt.yscale("linear")
     plt.legend()
     plt.title(title)
-    plt.savefig("../Visualization/Histograms-LDA.png")
+    plt.savefig("../Visualization/Histograms/Histograms-LDA.png")
     plt.show()
     plt.close()
 
-
+#Explained variance PCA
 def plot_variance_pca(DTR, LTR):
     """Plot : Variance function of number of dimensions"""
     n_dimensions = DTR.shape[0]
@@ -169,40 +139,41 @@ def plot_variance_pca(DTR, LTR):
     plt.plot(range(1, n_dimensions + 1), explained_variance_ratio)
     plt.xlabel("PCA dimensions")
     plt.ylabel("Fraction of explained variance")
-    plt.savefig("../Visualization/explained_variance.png")
+    plt.savefig("../Visualization/Scatter/explained_variance.png")
     plt.close()
 
+#Two dimensional PCA and plotting it
+def PCA(D):
+    N = D.shape[1]
+    mu = vcol(D.mean(1)) # compute mean by column of the dataset for each dimension, note that mu is a row vector of shape (4,)
+    DC = D - mu # center data
+    C = numpy.dot(DC, DC.T)/N # compute the covariance matrix of centered data
+    s, U = numpy.linalg.eigh(C)
+    P = U[:, ::-1][:, 0:2] # 2 dim PCA
+    DP = numpy.dot(P.T, D)
+    return DP
 
-def plot_bayess_error(llr, label):
-    effPriorLogOdds = np.linspace(-3, 3, 21)
-    # for each value of p we compute the effective prior
+
+def plot_scatter(D, L, title):
+    
+    # make data that will be plotted
+    label1 = (L == 1)
+    label0 = (L == 0)
+    
+    Data_0 = D[:, label0]
+    Data_1 = D[:, label1]
+
     plt.figure()
-    llr = llr.ravel()
-    dcf = np.zeros(21)
-    min_dcf = np.zeros(21)
+    plt.scatter(Data_0[0, :], Data_0[1, :], label='spoofed fingerprint', s=16, alpha = 0.5)
+    plt.scatter(Data_1[0, :], Data_1[1, :], label='authentic fingerprint',s=16, alpha = 0.5)
 
-    for idx, p in enumerate(effPriorLogOdds):
-        pi = 1 / (1 + np.exp(-p))
-        dcf[idx] = metrics.DCF_norm(llr, label, pi, 1, 1)
-        min_dcf[idx] = metrics.minimun_DCF_norm(llr, label, pi, 1, 1)[0]
-
-    plt.plot(effPriorLogOdds, dcf, label="actDCF", color="b")
-    plt.plot(effPriorLogOdds, min_dcf, label="minDCF", color="r")
-    plt.ylim([0, 1])
-    plt.xlim([-3, 3])
-    plt.show()
-
-
-def plot_roc(llr, label):
-    tpr, fpr = metrics.roc_points(llr, label)
-    plt.plot(fpr, tpr)
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.grid()
+    
+    #plt.title(title)
     plt.legend()
+    plt.savefig('../Visualization/Scatter/PCA_2.png', dpi = 200)
     plt.show()
-
-
+    
+    
 if __name__ == "__main__":
     # Change default font size
     plt.rc("font", size=16)
@@ -212,16 +183,15 @@ if __name__ == "__main__":
     D, L = load("../Train.txt")
     D0 = D[:, L == 0]
     D1 = D[:, L == 1]
-    # plot_hist_all_features(D, L)
-    # #plot_scatter_all_features(D, L)
+    plot_hist_all_features(D, L, 'Histogram of all features')
+   
 
     # features correlation using heatmap
-
     # Data Analysis
-    # D_PCA = PCA(D)
-    # plot_scatter(D_PCA, L, "PCA")
-    # D_LDA = LDA(D,L)
-    # plot_hist(D_LDA, L, 'Histogram of dataset features - LDA direction')
+    D_PCA = MLCore.PCA(D,2)
+    plot_scatter(D_PCA, L, "PCA")
+    D_LDA = LDA(D,L)
+    plot_hist(D_LDA, L, 'Histogram of dataset features - LDA direction')
     heatmap(D, "heatmap_rawData")
     heatmap(D[:, L == 0], "heatmap_label0_rawData")
     heatmap(D[:, L == 1], "heatmap_label1_rawData")
