@@ -83,18 +83,7 @@ def heatmap(X, label: str = ""):
     plt.figure()
     sb.heatmap(np.corrcoef(X))
     plt.savefig(f"../Visualization/Heatmaps-{label}.png")
-
-
-"""
-
-Plotting PCA
-
-"""
-
-
-def vcol(m):
-    """Reshape as a column vector input m"""
-    return m.reshape((m.size, 1))
+    plt.close()
 
 
 def plot_scatter(D, L, title):
@@ -112,20 +101,7 @@ def plot_scatter(D, L, title):
     # plt.title(title)
     plt.legend()
     plt.savefig("../Visualization/Scatter-PCA_2.png", dpi=200)
-    plt.show()
-
-
-def PCA(D):
-    N = D.shape[1]
-    mu = vcol(
-        D.mean(1)
-    )  # compute mean by column of the dataset for each dimension, note that mu is a row vector of shape (4,)
-    DC = D - mu  # center data
-    C = np.dot(DC, DC.T) / N  # compute the covariance matrix of centered data
-    s, U = np.linalg.eigh(C)
-    P = U[:, ::-1][:, 0:2]  # 2 dim PCA
-    DP = np.dot(P.T, D)
-    return DP
+    plt.close()
 
 
 def LDA(D, L, directions=1):
@@ -171,22 +147,21 @@ def plot_hist(D, L, title):
 
     plt.figure()
     plt.hist(D0[0, :], bins=cnst.BINS, alpha=0.8, label="spoofed fingerprint ")
-    plt.hist(D1[0, :], bins=cnst.BINS, alpha=1, label="authentic fingerprint")
+    plt.hist(D1[0, :], bins=cnst.BINS, alpha=0.8, label="authentic fingerprint")
     plt.yscale("linear")
     plt.legend()
-
+    plt.title(title)
     plt.savefig("../Visualization/Histograms-LDA.png")
-    # plt.title(title)
     plt.show()
+    plt.close()
 
 
 def plot_variance_pca(DTR, LTR):
     """Plot : Variance function of number of dimensions"""
-    DTR, eigValue = MLCore.PCA_projected(DTR, DTR.shape[0] + 1)
-    n_dimensions = eigValue.size
-    sorted_eigenvalues = eigValue[::-1]
-    total_variance = np.sum(sorted_eigenvalues)
-    explained_variance_ratio = np.cumsum(sorted_eigenvalues / total_variance)
+    n_dimensions = DTR.shape[0]
+    _, eigen_values = MLCore.principal_components(DTR, n_dimensions)
+    total_variance = np.sum(eigen_values)
+    explained_variance_ratio = np.cumsum(eigen_values / total_variance)
     plt.figure()
     ax = plt.axes()
     ax.yaxis.grid(color="gray", linestyle="dashed")

@@ -1,5 +1,6 @@
 import numpy as np
 import constants as cnst
+import sklearn.datasets
 
 
 def mCol(row):
@@ -31,3 +32,8 @@ def load(filename):
             LabelList.append(label)
 
     return np.hstack(DataList), np.array(LabelList, dtype=np.int32)
+
+
+def load_iris():
+    D, L = sklearn.datasets.load_iris()["data"].T, sklearn.datasets.load_iris()["target"]
+    return D, L
