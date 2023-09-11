@@ -9,6 +9,7 @@ from pre_processing import PCA
 from MLCore import *
 from GaussianModels import PCA_preproccessor
 from functools import partial
+from tqdm import tqdm
 
 
 # Compute objective function and its derivatives (required by the optimization algorithm)
@@ -39,19 +40,40 @@ def logreg_obj_wrap(DTR, LTR, l, pi_T):
             1 - pi_T
         ) / Nf * np.sum(1 / (1 + np.exp(-np.dot(w.T, DTR[:, LTR == 0]) - b)))
 
-        dJ = np.concatenate((dJw,np.array(dJb).reshape(1,),))
+        dJ = np.concatenate((dJw, np.array(dJb).reshape(1,),))
 
         return J, dJ
 
     return logreg_obj
 
 
+def logreg_obj_wrap_stable(DTR, LTR, l, pi_T):
+    def logreg_obj(v):
+        w, b = v[:-1], v[-1]
+
+        # Indices for each case
+        indices_z1 = LTR == 1  # z = 1
+        indices_z_minus_1 = LTR == 0  # z = -1
+        Nt = sum(indices_z1)
+        Nf = sum(indices_z_minus_1)
+
+        # Compute for z = 1
+        sum_z1 = np.sum(np.logaddexp(0, -np.dot(w.T, DTR[:, indices_z1]) - b))
+        # Compute for z = -1
+        sum_z_minus_1 = np.sum(np.logaddexp(0, np.dot(w.T, DTR[:, indices_z_minus_1]) + b))
+
+        J = (l/2) * np.linalg.norm(w)**2 + (pi_T / Nt) * sum_z1 + ((1-pi_T)/Nf) * sum_z_minus_1
+
+        return J
+    return logreg_obj
+
+
 # Train a linear logistic regression model and evaluate it on test data
 def linear_logistic_regression(DTR, LTR, DTE, LTE, l, pi_T, pi, Cfn, Cfp):
     # Define objective function
-    logreg_obj = logreg_obj_wrap(DTR, LTR, l, pi_T)
+    logreg_obj = logreg_obj_wrap_stable(DTR, LTR, l, pi_T)
     # Optimize objective function
-    optV, _, _ = fmin_l_bfgs_b(logreg_obj, np.zeros(DTR.shape[0] + 1), approx_grad=False)
+    optV, _, _ = fmin_l_bfgs_b(logreg_obj, np.zeros(DTR.shape[0] + 1), approx_grad=True)
 
     w, b = optV[0:-1], optV[-1]
 
@@ -81,8 +103,8 @@ def quadratic_logistic_regression(DTR, LTR, DTE, LTE, l, pi_T, pi, Cfn, Cfp):
     phi = map_to_feature_space(DTR)
 
     # Train a linear regression model on expanded feature space
-    logreg_obj = logreg_obj_wrap(phi, LTR, l, pi_T)
-    optV, _, _ = fmin_l_bfgs_b(logreg_obj, np.zeros(phi.shape[0] + 1), approx_grad=False)
+    logreg_obj = logreg_obj_wrap_stable(phi, LTR, l, pi_T)
+    optV, _, _ = fmin_l_bfgs_b(logreg_obj, np.zeros(phi.shape[0] + 1), approx_grad=True)
     w, b = optV[0:-1], optV[-1]
 
     # Map test features to expanded feature space
@@ -142,7 +164,7 @@ def k_fold_cross_validation(
 if __name__ == "__main__":
     ### Train and evaluate different logistic regression models using cross validation and single split
 
-    for LR_type in ["linear", "quadratic"]:
+    for LR_type in tqdm(["linear", "quadratic"], desc='Linear or Quadratic'):
         D, L = load("../Train.txt")
         DN = Z_score(D)
         lambda_values = [0, 1e-6, 1e-4, 1e-2, 1, 100]
@@ -163,7 +185,7 @@ if __name__ == "__main__":
             f.write("Values of min DCF for values of lambda = [0, 1e-6, 1e-4, 1e-2, 1, 100]\n")
             f.write("\nRaw features\n")
             DCF_kfold_raw = []
-            for l in lambda_values:
+            for l in tqdm(lambda_values, desc='Un-normalized'):
                 minDCF, _ = k_fold_cross_validation(
                     D, L, linear_or_quadratic, 5, 0.5, 10, 1, l, pi_T, seed=0
                 )
@@ -173,7 +195,7 @@ if __name__ == "__main__":
             ### Z-normalized features - no PCA
             f.write("\nZ-normalized features - no PCA\n")
             DCF_kfold_z = []
-            for l in lambda_values:
+            for l in tqdm(lambda_values, desc='Normalized'):
                 minDCF, _ = k_fold_cross_validation(
                     DN, L, linear_or_quadratic, 5, 0.5, 10, 1, l, pi_T, seed=0
                 )
@@ -183,10 +205,10 @@ if __name__ == "__main__":
             ### Z-normalized features - PCA = 9 ( chose our pca value)
             f.write("\nZ-normalized features - PCA = 9\n")
             DCF_kfold_z_pca = {k: list() for k in pca_values}
-            for l in lambda_values:
-                for i in pca_values:
+            for l in tqdm(lambda_values, desc='With PCA'):
+                for i in tqdm(pca_values, desc='PCA values'):
                     preprocessor = partial(PCA_preproccessor, dim=i)
-                    minDCF, _ = k_fold_cross_validation(D, L, linear_or_quadratic, 5, 0.5, 10, 1, l, 
+                    minDCF, _ = k_fold_cross_validation(DN, L, linear_or_quadratic, 5, 0.5, 10, 1, l, 
                                                         pi_T, preprocessor=preprocessor)
                     DCF_kfold_z_pca[i].append(minDCF)
                     f.write(f"Lambda: {l} PCA dim:{i} minDCF {minDCF}\n")
