@@ -6,6 +6,7 @@ import constants as cnst
 from Metrics import *
 from functools import partial
 import matplotlib.pyplot as plt
+from fractions import Fraction
 
 
 n_class = len(cnst.CLASS_NAMES)
@@ -136,7 +137,7 @@ def tied_naive_MVG(DTR, LTR, DTE, LTE, pi, Cfp, Cfn):
 
 
 # Perform k-fold cross validation on test data for the specified model
-def k_fold_cross_validation(D, L, classifier, k, pi, Cfp, Cfn, preprocessor=None, seed=0):
+def k_fold_cross_validation(D, L, classifier, k, pi, Cfn, Cfp, preprocessor=None, seed=0):
     np.random.seed(seed)
     idx = np.random.permutation(D.shape[1])
 
@@ -185,25 +186,124 @@ def PCA_preproccessor(DTR, LTR, DTE, LTE, dim):
 
 
 
-
-if __name__ == "__main__":
-    D, L = load("./Train.txt")
-    # DTE, LTE = load("../Test.txt")
-
+def results_MVG(pi, Cfn, Cfp):
     score = []
     for i in range(1, 11):
         preprocessor = partial(PCA_preproccessor, dim=i)
         score.append(
             k_fold_cross_validation(
-                D, L, tied_MVG, 5, 0.5, 10, 1, seed=0, preprocessor=preprocessor
+                D, L, MVG , 5, pi, Cfn, Cfp, seed=0, preprocessor=preprocessor
             )
         )
         print(i, score[-1])
 
-    with open("../Results/Gaussian/results_naive_bayes", "w") as outfile:
-        for i in range(1, 11):
-            outfile.write(f"{i}, {score[i-1]}\n")
+    # with open("../Results/Gaussian/results_MVG_{pi}", "w") as outfile:
+    #     for i in range(1, 11):
+    #         outfile.write(f"{i}, {score[i-1]}\n")
+    # plt.plot(range(1, 11), score)
+    # plt.savefig(f"../Results/Gaussian/results_gaussian_{pi}.png")
+    return
+        
+def results_Naive_MVG(pi, Cfn, Cfp):
+    score = []
+    for i in range(1, 11):
+        preprocessor = partial(PCA_preproccessor, dim=i)
+        score.append(
+            k_fold_cross_validation(
+                D, L, naive_Bayes , 5, pi, Cfn, Cfp, seed=0, preprocessor=preprocessor
+            )
+        )
+        print(i, score[-1])
+
+    # with open("../Results/Gaussian/results_Naive_Bayes", "w") as outfile:
+    #     for i in range(1, 11):
+    #         outfile.write(f"{i}, {score[i-1]}\n")
+    # plt.plot(range(1, 11), score)
+    # plt.savefig(f"../Results/Gaussian/results_naive_bayes.png")
+    return
+
+def results_Tied_MVG(pi, Cfn, Cfp):
+    score = []
+    for i in range(1, 11):
+        preprocessor = partial(PCA_preproccessor, dim=i)
+        score.append(
+            k_fold_cross_validation(
+                D, L, tied_MVG , 5,pi, Cfn, Cfp, seed=0, preprocessor=preprocessor
+            )
+        )
+        print(i, score[-1])
+
+    # with open("../Results/Gaussian/results_Tied_MVG", "w") as outfile:
+    #     for i in range(1, 11):
+    #         outfile.write(f"{i}, {score[i-1]}\n")
+    # plt.plot(range(1, 11), score)
+    # plt.savefig(f"../Results/Gaussian/results_tied_mvg.png")
+    return
+
+def results_Tied_Naive_Bayes(pi, Cfn, Cfp):
+    score = []
+    for i in range(1, 11):
+        preprocessor = partial(PCA_preproccessor, dim=i)
+        score.append(
+            k_fold_cross_validation(
+                D, L, tied_naive_MVG , 5, pi, Cfn, Cfp, seed=0, preprocessor=preprocessor
+            )
+        )
+        print(i, score[-1])
+
+    # with open("../Results/Gaussian/results_Tied_naive_bayes", "w") as outfile:
+    #     for i in range(1, 11):
+    #         outfile.write(f"{i}, {score[i-1]}\n")
+    # plt.plot(range(1, 11), score)
+    # plt.savefig(f"../Results/Gaussian/results_tied_naive_bayes.png")
+    return
+
+
+def compute_Cprim(val1, val2):
+    return (val1 + val2)/2
+
+if __name__ == "__main__":
+    D, L = load("./Train.txt")
+    # DTE, LTE = load("../Test.txt")
+
+    # score = []
+    # for i in range(1, 11):
+    #     preprocessor = partial(PCA_preproccessor, dim=i)
+    #     score.append(
+    #         k_fold_cross_validation(
+    #             D, L, tied_MVG, 5, 0.5, 10, 1, seed=0, preprocessor=preprocessor
+    #         )
+    #     )
+    #     print(i, score[-1])
+
+    # with open("../Results/Gaussian/results_naive_bayes", "w") as outfile:
+    #     for i in range(1, 11):
+    #         outfile.write(f"{i}, {score[i-1]}\n")
+    """
+    For each Gaussian classifier we're running 10 models to choose the best one
+    for each model we have different dimension for PCA going from PCA = 1 to No PCA
+    """
+    """
+    print("Results for working point (1/11 , 1, 1)")
+    print("Resluts MVG")
+    results_MVG(Fraction(1,11), 1, 1)
+    print("Results Naive Bayes")
+    results_Naive_MVG(Fraction(1,11), 1, 1)
+    print("Results Tied MVG")
+    results_Tied_MVG(Fraction(1,11), 1, 1)
+    print("Results Tied Naive Bayes")
+    results_Tied_Naive_Bayes(Fraction(1,11),1,1)
+    print("results for working point: (0.1, 1, 1)")
+    print("Resluts MVG")
+    results_MVG(0.1, 1, 1)
+    print("Results Naive Bayes")
+    results_Naive_MVG(0.1, 1, 1)
+    print("Results Tied MVG")
+    results_Tied_MVG(0.1, 1, 1)
+    print("Results Tied Naive Bayes")
+    results_Tied_Naive_Bayes(0.1, 1, 1)
+"""
+    print(compute_Cprim(0.549, 0.530))
  
 
-    plt.plot(range(1, 11), score)
-    plt.show()
+    
