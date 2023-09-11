@@ -182,8 +182,9 @@ def k_fold_cross_validation(D, L, classifier, k, pi, Cfn, Cfp, preprocessor=None
 
 
 
+fig, axs = plt.subplots(2,2)
 
-def results_MVG(pi, Cfn, Cfp):
+def results_MVG(pi, Cfn, Cfp, title):
     score = []
     for i in range(1, 11):
         preprocessor = partial(PCA_preproccessor, dim=i)
@@ -194,14 +195,16 @@ def results_MVG(pi, Cfn, Cfp):
         )
         print(i, score[-1])
 
-    # with open("../Results/Gaussian/results_MVG_{pi}", "w") as outfile:
-    #     for i in range(1, 11):
-    #         outfile.write(f"{i}, {score[i-1]}\n")
-    # plt.plot(range(1, 11), score)
-    # plt.savefig(f"../Results/Gaussian/results_gaussian_{pi}.png")
+    with open(f"./Results/Gaussian/results_MVG_{title}", "w") as outfile:
+        for i in range(1, 11):
+            outfile.write(f"{i}: {score[i-1]}\n")
+    axs[0,0].plot(range(1, 11), score)
+    axs[0,0].set_title('MVG', fontdict={'size': 9})
+ #   plt.savefig(f"./Results/Gaussian/results_gaussian_{title}.png")
+    
     return
         
-def results_Naive_MVG(pi, Cfn, Cfp):
+def results_Naive_MVG(pi, Cfn, Cfp, title):
     score = []
     for i in range(1, 11):
         preprocessor = partial(PCA_preproccessor, dim=i)
@@ -212,14 +215,17 @@ def results_Naive_MVG(pi, Cfn, Cfp):
         )
         print(i, score[-1])
 
-    # with open("../Results/Gaussian/results_Naive_Bayes", "w") as outfile:
-    #     for i in range(1, 11):
-    #         outfile.write(f"{i}, {score[i-1]}\n")
-    # plt.plot(range(1, 11), score)
-    # plt.savefig(f"../Results/Gaussian/results_naive_bayes.png")
+    with open(f"./Results/Gaussian/results_Naive_Bayes_{title}", "w") as outfile:
+        for i in range(1, 11):
+            outfile.write(f"{i}: {score[i-1]}\n")
+   
+    axs[0,1].plot(range(1, 11), score)
+    axs[0,1].set_title('Naive Bayes', fontdict={'size': 9})
+    
+   
     return
 
-def results_Tied_MVG(pi, Cfn, Cfp):
+def results_Tied_MVG(pi, Cfn, Cfp, title):
     score = []
     for i in range(1, 11):
         preprocessor = partial(PCA_preproccessor, dim=i)
@@ -230,14 +236,15 @@ def results_Tied_MVG(pi, Cfn, Cfp):
         )
         print(i, score[-1])
 
-    # with open("../Results/Gaussian/results_Tied_MVG", "w") as outfile:
-    #     for i in range(1, 11):
-    #         outfile.write(f"{i}, {score[i-1]}\n")
-    # plt.plot(range(1, 11), score)
-    # plt.savefig(f"../Results/Gaussian/results_tied_mvg.png")
+    with open(f"./Results/Gaussian/results_Tied_MVG_{title}", "w") as outfile:
+        for i in range(1, 11):
+            outfile.write(f"{i}: {score[i-1]}\n")
+    
+    axs[1,0].plot(range(1, 11), score)
+    axs[1,0].set_title('Tied MVG', fontdict={'size': 9})
     return
 
-def results_Tied_Naive_Bayes(pi, Cfn, Cfp):
+def results_Tied_Naive_Bayes(pi, Cfn, Cfp, title):
     score = []
     for i in range(1, 11):
         preprocessor = partial(PCA_preproccessor, dim=i)
@@ -248,11 +255,16 @@ def results_Tied_Naive_Bayes(pi, Cfn, Cfp):
         )
         print(i, score[-1])
 
-    # with open("../Results/Gaussian/results_Tied_naive_bayes", "w") as outfile:
-    #     for i in range(1, 11):
-    #         outfile.write(f"{i}, {score[i-1]}\n")
-    # plt.plot(range(1, 11), score)
-    # plt.savefig(f"../Results/Gaussian/results_tied_naive_bayes.png")
+    with open(f"./Results/Gaussian/results_Tied_naive_bayes_{title}", "w") as outfile:
+        for i in range(1, 11):
+            outfile.write(f"{i}: {score[i-1]}\n")
+    
+    
+    axs[1,1].plot(range(1, 11), score)
+    axs[1,1].set_title('Tied Naive Bayes', fontdict={'size': 9})
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
+    plt.savefig(f"./Results/Gaussian/results_pca_{title}.png")
+    plt.close()
     return
 
 
@@ -280,27 +292,24 @@ if __name__ == "__main__":
     For each Gaussian classifier we're running 10 models to choose the best one
     for each model we have different dimension for PCA going from PCA = 1 to No PCA
     """
-    """
-    print("Results for working point (1/11 , 1, 1)")
-    print("Resluts MVG")
-    results_MVG(Fraction(1,11), 1, 1)
-    print("Results Naive Bayes")
-    results_Naive_MVG(Fraction(1,11), 1, 1)
-    print("Results Tied MVG")
-    results_Tied_MVG(Fraction(1,11), 1, 1)
-    print("Results Tied Naive Bayes")
-    results_Tied_Naive_Bayes(Fraction(1,11),1,1)
-    print("results for working point: (0.1, 1, 1)")
-    print("Resluts MVG")
-    results_MVG(0.1, 1, 1)
-    print("Results Naive Bayes")
-    results_Naive_MVG(0.1, 1, 1)
-    print("Results Tied MVG")
-    results_Tied_MVG(0.1, 1, 1)
-    print("Results Tied Naive Bayes")
-    results_Tied_Naive_Bayes(0.1, 1, 1)
-"""
-    print(compute_Cprim(0.549, 0.530))
- 
-
     
+    # print("Results for working point (1/11 , 1, 1)")
+    # print("Resluts MVG")
+    # results_MVG(Fraction(1,11), 1, 1, "1")
+    # print("Results Naive Bayes")
+    # results_Naive_MVG(Fraction(1,11), 1, 1, "1")
+    # print("Results Tied MVG")
+    # results_Tied_MVG(Fraction(1,11), 1, 1, "1")
+    # print("Results Tied Naive Bayes")
+    # results_Tied_Naive_Bayes(Fraction(1,11),1,1, "1")
+    # print("results for working point: (0.1, 1, 1)")
+    # print("Resluts MVG")
+    # results_MVG(0.1, 1, 1, "2")
+    # print("Results Naive Bayes")
+    # results_Naive_MVG(0.1, 1, 1, "2")
+    # print("Results Tied MVG")
+    # results_Tied_MVG(0.1, 1, 1, "2")
+    # print("Results Tied Naive Bayes")
+    #results_Tied_Naive_Bayes(0.1, 1, 1, "2")
+
+    print(compute_Cprim(0.530, 0.510))
