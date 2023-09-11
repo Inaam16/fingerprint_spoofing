@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import constants as cnst
 import seaborn as sb
 
-import MLCore as MLCore
+# import MLCore as MLCore
 import Metrics as metrics
 from Utilities import *
+from pre_processing import PCA
 
 
 
@@ -40,7 +41,7 @@ def plot_hist_all_features(Data, Label, title):
         )
         plt.legend(fontsize="10")
         plt.tight_layout()  # Use with non-default font size to keep axis label inside the figure
-        plt.savefig(f"../Visualization/Histograms/{title}-hist{dIdx}.png")
+        plt.savefig(f"./Visualization/Histograms/{title}-hist{dIdx}.png")
     plt.close("all")
 
 
@@ -61,14 +62,14 @@ def draw_scatterplots(D, L):
             else:  # Draw scatterplot
                 for c, name in enumerate(cnst.CLASS_NAMES):
                     ax.scatter(D[i, L == c], D[j, L == c], alpha=0.5)
-    plt.savefig(f"../Visualization/Scatter/scatterplots", bbox_inches="tight")
+    plt.savefig(f"./Visualization/Scatter/scatterplots", bbox_inches="tight")
     plt.close()
 
 #Heat map function for correlations
 def heatmap(X, label: str = ""):
     plt.figure()
     sb.heatmap(np.corrcoef(X))
-    plt.savefig(f"../Visualization/Heatmaps/Heatmaps-{label}.png")
+    plt.savefig(f"./Visualization/Heatmaps/Heatmaps-{label}.png")
     plt.close()
 
 
@@ -121,7 +122,7 @@ def plot_hist(D, L, title):
     plt.yscale("linear")
     plt.legend()
     plt.title(title)
-    plt.savefig("../Visualization/Histograms/Histograms-LDA.png")
+    plt.savefig("./Visualization/Histograms/Histograms-LDA.png")
     plt.show()
     plt.close()
 
@@ -139,19 +140,19 @@ def plot_variance_pca(DTR, LTR):
     plt.plot(range(1, n_dimensions + 1), explained_variance_ratio)
     plt.xlabel("PCA dimensions")
     plt.ylabel("Fraction of explained variance")
-    plt.savefig("../Visualization/Scatter/explained_variance.png")
+    plt.savefig("./Visualization/Scatter/explained_variance.png")
     plt.close()
 
 #Two dimensional PCA and plotting it
-def PCA(D):
-    N = D.shape[1]
-    mu = vcol(D.mean(1)) # compute mean by column of the dataset for each dimension, note that mu is a row vector of shape (4,)
-    DC = D - mu # center data
-    C = numpy.dot(DC, DC.T)/N # compute the covariance matrix of centered data
-    s, U = numpy.linalg.eigh(C)
-    P = U[:, ::-1][:, 0:2] # 2 dim PCA
-    DP = numpy.dot(P.T, D)
-    return DP
+# def PCA(D):
+#     N = D.shape[1]
+#     mu = vcol(D.mean(1)) # compute mean by column of the dataset for each dimension, note that mu is a row vector of shape (4,)
+#     DC = D - mu # center data
+#     C = np.dot(DC, DC.T)/N # compute the covariance matrix of centered data
+#     s, U = np.linalg.eigh(C)
+#     P = U[:, ::-1][:, 0:2] # 2 dim PCA
+#     DP = np.dot(P.T, D)
+#     return DP
 
 
 def plot_scatter(D, L, title):
@@ -170,7 +171,7 @@ def plot_scatter(D, L, title):
     
     #plt.title(title)
     plt.legend()
-    plt.savefig('../Visualization/Scatter/PCA_2.png', dpi = 200)
+    plt.savefig('./Visualization/Scatter/PCA_2.png', dpi = 200)
     plt.show()
     
     
@@ -180,7 +181,7 @@ if __name__ == "__main__":
     plt.rc("xtick", labelsize=12)
     plt.rc("ytick", labelsize=12)
 
-    D, L = load("../Train.txt")
+    D, L = load("./Train.txt")
     D0 = D[:, L == 0]
     D1 = D[:, L == 1]
     plot_hist_all_features(D, L, 'Histogram of all features')
@@ -188,7 +189,7 @@ if __name__ == "__main__":
 
     # features correlation using heatmap
     # Data Analysis
-    D_PCA = MLCore.PCA(D,2)
+    D_PCA = PCA(D,2)
     plot_scatter(D_PCA, L, "PCA")
     D_LDA = LDA(D,L)
     plot_hist(D_LDA, L, 'Histogram of dataset features - LDA direction')

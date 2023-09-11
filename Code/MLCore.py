@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 import scipy.special
 from Utilities import *
+from pre_processing import project_PCA, PCA
 
 
 def mean_and_covariance(Data):
