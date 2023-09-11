@@ -1,5 +1,5 @@
 import numpy as np
-from MLCore import mRow, mean_and_covariance
+from MLCore import *
 from pre_processing import  PCA, project_PCA
 from Utilities import load
 import constants as cnst
@@ -179,10 +179,7 @@ def k_fold_cross_validation(D, L, classifier, k, pi, Cfn, Cfp, preprocessor=None
     return minDCF
 
 
-def PCA_preproccessor(DTR, LTR, DTE, LTE, dim):
-    DTR_p, vects, _ = PCA(DTR, dim, components=True)
-    DTE_p = project_PCA(DTE, vects)
-    return DTR_p, LTR, DTE_p, LTE
+
 
 
 
