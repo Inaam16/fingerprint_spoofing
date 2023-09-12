@@ -10,6 +10,20 @@ from MLCore import *
 from GaussianModels import PCA_preproccessor
 from functools import partial
 from tqdm import tqdm
+from fractions import Fraction
+
+
+def normalize_zscore(D, mu=[], sigma=[]):
+   # print("D shape: "+str(D.shape))
+    if mu == [] or sigma == []:
+        mu = np.mean(D, axis=1)
+        sigma = np.std(D, axis=1)
+    ZD = D
+    ZD = ZD - mCol(mu)
+    ZD = ZD / mCol(sigma)
+    #print("ZD shape: "+str(ZD.shape))
+    return ZD
+
 
 
 # Compute objective function and its derivatives (required by the optimization algorithm)
@@ -160,24 +174,28 @@ def k_fold_cross_validation(
 
     return minDCF, llr
 
-
-if __name__ == "__main__":
-    ### Train and evaluate different logistic regression models using cross validation and single split
-
+def results_LR_QLR(pi, Cfn, Cfp, znorm, title):
+    if znorm == True:
+        label_z = "Z_norm"
+    else:
+        label_z = ""
     for LR_type in tqdm(["linear", "quadratic"], desc='Linear or Quadratic'):
-        D, L = load("../Train.txt")
-        DN = Z_score(D)
+        D, L = load("./Train.txt")
+        if znorm == True:
+            DN = normalize_zscore(D)
+        else:
+            DN = D
         lambda_values = [0, 1e-6, 1e-4, 1e-2, 1, 100]
-        pca_values = list(range(5, 11))
+        pca_values = list(range(6, 11))
         pi_T = 0.5  # to change later
-        img_name = "LR_lambda_kfold.png"
-        fileName = "../Results/LR_results.txt"
+        img_name = f"LR_lambda_kfold_{title}_{label_z}.png"
+        fileName = f"./Results/LR/LR_results_{title}_{label_z}.txt"
         linear_or_quadratic = linear_logistic_regression
         plot_title = "Linear regression"
         if LR_type == "quadratic":
-            fileName = "../Results/Quad_LR_results.txt"
+            fileName = f"./Results/LR/Quad_LR_results_{title}_{label_z}.txt"
             linear_or_quadratic = quadratic_logistic_regression
-            img_name = "Quad_LR_lambda_kfold.png"
+            img_name = f"Quad_LR_lambda_kfold_{title}_{label_z}.png"
             plot_title = "Quadratic regression"
 
         with open(fileName, "w") as f:
@@ -187,41 +205,77 @@ if __name__ == "__main__":
             DCF_kfold_raw = []
             for l in tqdm(lambda_values, desc='Un-normalized'):
                 minDCF, _ = k_fold_cross_validation(
-                    D, L, linear_or_quadratic, 5, 0.5, 10, 1, l, pi_T, seed=0
+                    DN, L, linear_or_quadratic, 5, pi, Cfp, Cfn, l, pi_T, seed=0
                 )
                 DCF_kfold_raw.append(minDCF)
                 f.write(f"Lambda: {l} minDCF: {minDCF}\n")
 
             ### Z-normalized features - no PCA
-            f.write("\nZ-normalized features - no PCA\n")
-            DCF_kfold_z = []
-            for l in tqdm(lambda_values, desc='Normalized'):
-                minDCF, _ = k_fold_cross_validation(
-                    DN, L, linear_or_quadratic, 5, 0.5, 10, 1, l, pi_T, seed=0
-                )
-                DCF_kfold_z.append(minDCF)
-                f.write(f"Lambda: {l} minDCF: {minDCF}\n")
+            # f.write("\nZ-normalized features - no PCA\n")
+            # DCF_kfold_z = []
+            # for l in tqdm(lambda_values, desc='Normalized'):
+            #     minDCF, _ = k_fold_cross_validation(
+            #         DN, L, linear_or_quadratic, 5, pi, Cfp, Cfn, l, pi_T, seed=0
+            #     )
+            #     DCF_kfold_z.append(minDCF)
+            #     f.write(f"Lambda: {l} minDCF: {minDCF}\n")
 
             ### Z-normalized features - PCA = 9 ( chose our pca value)
-            f.write("\nZ-normalized features - PCA = 9\n")
+            f.write("\nZ-normalized features - PCA \n")
             DCF_kfold_z_pca = {k: list() for k in pca_values}
             for l in tqdm(lambda_values, desc='With PCA'):
                 for i in tqdm(pca_values, desc='PCA values'):
                     preprocessor = partial(PCA_preproccessor, dim=i)
-                    minDCF, _ = k_fold_cross_validation(DN, L, linear_or_quadratic, 5, 0.5, 10, 1, l, 
+                    minDCF, _ = k_fold_cross_validation(DN, L, linear_or_quadratic, 5, pi, Cfp, Cfn, l, 
                                                         pi_T, preprocessor=preprocessor)
                     DCF_kfold_z_pca[i].append(minDCF)
                     f.write(f"Lambda: {l} PCA dim:{i} minDCF {minDCF}\n")
-
+            if label_z == "Z_norm":
+                label_z = "Z-norm"
             ### Plot min DCF for different values of lambda
             plt.figure()
-            plt.plot(lambda_values, DCF_kfold_raw, label="Raw")
-            plt.plot(lambda_values, DCF_kfold_z, label="Z-normalized")
+            plt.plot(lambda_values, DCF_kfold_raw, label=f"{label_z} No PCA")
+            # plt.plot(lambda_values, DCF_kfold_z, label=f"{label_z}")
             for i in pca_values:
-                plt.plot(lambda_values, DCF_kfold_z_pca[i], label=f"Z-normalized, PCA {i}")
+                plt.plot(lambda_values, DCF_kfold_z_pca[i], label=f"{label_z} PCA {i}")
             plt.xscale("log")
             plt.xlabel(r"$\lambda$")
             plt.ylabel("min DCF")
             plt.legend()
             plt.title(plot_title)
-            plt.savefig("../Visualization/" + img_name)
+            plt.savefig("./Results/LR/" + img_name)
+    return
+
+
+if __name__ == "__main__":
+    ### Train and evaluate different logistic regression models using cross validation and single split
+
+    # pi1 = pieffapp = 1/11
+    #results_LR_QLR(Fraction(1,11), 1, 1, True, "pi1")
+    #results_LR_QLR(Fraction(1,11), 1, 1, False, "pi1")
+    
+    # pi2 = 0.9
+    # results_LR_QLR(0.9, 1, 1, True, "pi2")
+   
+    #pi3 = 0.1
+    # results_LR_QLR(0.1, 1, 1, True, "pi3")
+    # results_LR_QLR(0.1, 1, 1, False, "pi3")
+    
+    #pi4 = 0.5
+    # results_LR_QLR(0.5, 1, 1, True, "pi4")
+   
+    # pi5 = 0.4
+    # results_LR_QLR(0.4, 1, 1, False, "pi5")
+    # results_LR_QLR(0.4, 1, 1, True, "pi5")
+
+    # pi6 = 0.05
+    # results_LR_QLR(0.05, 1, 1, False, "pi6")
+    # results_LR_QLR(0.05, 1, 1, True, "pi6")
+
+    # pi7 = 0.95
+    # results_LR_QLR(0.095, 1, 1, True, "pi7")
+
+    # pi8 = 0.2
+    results_LR_QLR(0.2, 1, 1, True, "pi8")
+    
+
