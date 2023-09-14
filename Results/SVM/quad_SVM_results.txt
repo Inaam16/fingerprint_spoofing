@@ -1,8 +1,0 @@
-**** min DCF for different quadratic kernel SVM models ****
-
-Values of min DCF for values of C = [1e-1, 1, 10]
-
-Z-normalized features - no PCA - no rebalancing
-5-fold: (0.3098770491803278, 0.7136150277770097)5-fold: (0.31989754098360657, 1.054072014012446)5-fold: (0.31706967213114756, 0.9351921276442408)
-Z-normalized features - no PCA - rebalancing
-5-fold: (0.3236680327868852, 0.15031729757371487)5-fold: (0.3330327868852459, 0.19326341822745613)5-fold: (0.33709016393442626, 0.16408403886060086)
