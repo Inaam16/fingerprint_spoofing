@@ -140,7 +140,7 @@ def k_fold_cross_validation(D, L, classifier, k, pi, Cfp, Cfn, C, pi_T, K_SVM, r
             llr[idxTest], _ = classifier(DTR, LTR, DTE, LTE, C, K_SVM, pi, Cfp, Cfn, pi_T, rebalancing)
         else: # kernel SVM
             llr[idxTest], _ = classifier(DTR, LTR, DTE, LTE, C, kernel_type, pi, Cfn, Cfp, pi_T, gamma=gamma,
-                                     rebalancing=rebalancing, d =3, csi=K_SVM**0.5, c = 1)
+                                     rebalancing=rebalancing, d =2, csi=K_SVM**0.5, c = 1)
 
         start_index += elements
 
@@ -164,13 +164,14 @@ if __name__ == "__main__":
 
     # results_SVM_linear(5,Fraction(1,11), 1, 1, Fraction(1,11), 6, False, 1, title="pi1")
 
-    D, L = load("../Train.txt")
+    D, L = load("./Train.txt")
     DN = Z_score(D)
     C_val = [1e-5, 1e-4, 1e-2 ,1e-1, 1, 10 ]
     pi, pi_T = 1/11, 1/11
     Cfn, Cfp = 1, 1
     folds = 5
-    K_SVM = 1
+    K_SVM_1 = 1
+    K_SVM_0 = 0
     pca_dim = 6
 
     ### LINEAR SVM
@@ -217,101 +218,121 @@ if __name__ == "__main__":
 
     # ### QUADRATIC KERNEL SVM
     
-    # fileName = "../Results/SVM/quad_SVM_results.txt"
-    # with open(fileName, "w") as f:
+    fileName = "./Results/SVM/quad_SVM_results_Kvary.txt"
+    with open(fileName, "w") as f:
         
-    #     f.write("**** min DCF for different quadratic kernel SVM models ****\n\n")
-    #     f.write("Values of min DCF for values of C = [1e-1, 1, 10]\n")
+        f.write("**** min DCF for different quadratic kernel SVM models ****\n\n")
+        f.write("Values of min DCF for values of C = [1e-1, 1, 10]\n")
 
-    #     f.write("\nZ-normalized features -  PCA 6  - no rebalancing\n")
-    #     DCF_kfold_z_nobal = []
-    #     for C in C_val:
-    #         minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False,pca_dim=6, kernel_type= "poly")
-    #         DCF_kfold_z_nobal.append(minDCF)
-    #         f.write("5-fold: " + str(minDCF))
+        f.write("\nZ-normalized features -  PCA 6  - no rebalancing k = 1\n")
+        DCF_kfold_z_1 = []
+        for C in C_val:
+            minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM_1, rebalancing = False,pca_dim=6, kernel_type= "poly")
+            DCF_kfold_z_1.append(minDCF)
+            f.write("5-fold: " + str(minDCF))
         
-    #     print("Finished Z-normalized features - no rebalancing")
+        print("Finished Z-normalized features - no rebalancing - k = 1")
 
-    #     f.write("\nZ-normalized features -  PCA 6 - rebalancing\n")
-    #     DCF_kfold_z_bal = []
-    #     for C in C_val:
-    #         minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = True, pca_dim=6, kernel_type = "poly")
-    #         DCF_kfold_z_bal.append(minDCF)
-    #         f.write("5-fold: " + str(minDCF))
-    #     print("Finished Z-normalized features - rebalancing")
+        f.write("\n PCA 6 - No rebalancing\n")
+        DCF_kfold__1 = []
+        for C in C_val:
+            minDCF, _ = k_fold_cross_validation(D, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM_1, rebalancing = False, pca_dim=6, kernel_type = "poly")
+            DCF_kfold__1.append(minDCF)
+            f.write("5-fold: " + str(minDCF))
+        print("Finished Z-normalized features - rebalancing")
+
+        f.write("\nZ-normalized features -  PCA 6  - no rebalancing k = 1\n")
+        DCF_kfold_z_0 = []
+        for C in C_val:
+            minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM_0, rebalancing = False,pca_dim=6, kernel_type= "poly")
+            DCF_kfold_z_0.append(minDCF)
+            f.write("5-fold: " + str(minDCF))
         
-    #     f.write("\nZ-normalized features - no PCA - no rebalancing\n")
-    #     DCF_kfold_z_nobal_noPCA = []
-    #     for C in C_val:
-    #         minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False,pca_dim=None, kernel_type= "poly")
-    #         DCF_kfold_z_nobal_noPCA.append(minDCF)
-    #         f.write("5-fold: " + str(minDCF))
+        print("Finished Z-normalized features - no rebalancing - k = 1")
+
+        f.write("\n PCA 6 - No rebalancing\n")
+        DCF_kfold__0 = []
+        for C in C_val:
+            minDCF, _ = k_fold_cross_validation(D, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM_0, rebalancing = False, pca_dim=6, kernel_type = "poly")
+            DCF_kfold__0.append(minDCF)
+            f.write("5-fold: " + str(minDCF))
+        print("Finished Z-normalized features - rebalancing")
         
-    #     print("Finished Z-normalized features - no rebalancing")
+        # f.write("\nZ-normalized features - no PCA - no rebalancing\n")
+        # DCF_kfold_z_nobal_noPCA = []
+        # for C in C_val:
+        #     minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False,pca_dim=None, kernel_type= "poly")
+        #     DCF_kfold_z_nobal_noPCA.append(minDCF)
+        #     f.write("5-fold: " + str(minDCF))
+        
+        # print("Finished Z-normalized features - no rebalancing")
 
-    #     f.write("\nZ-normalized features - no PCA - rebalancing\n")
-    #     DCF_kfold_z_bal_noPCA = []
-    #     for C in C_val:
-    #         minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = True, pca_dim=None, kernel_type = "poly")
-    #         DCF_kfold_z_bal_noPCA.append(minDCF)
-    #         f.write("5-fold: " + str(minDCF))
-    #     print("Finished Z-normalized features - rebalancing")
+        # f.write("\nZ-normalized features - no PCA - rebalancing\n")
+        # DCF_kfold_z_bal_noPCA = []
+        # for C in C_val:
+        #     minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = True, pca_dim=None, kernel_type = "poly")
+        #     DCF_kfold_z_bal_noPCA.append(minDCF)
+        #     f.write("5-fold: " + str(minDCF))
+        # print("Finished Z-normalized features - rebalancing")
 
-    #     img_name = "quad_3_SVM_C_kfold.png"
+        img_name = "quad_3_SVM_C_kfold_Kvary.png"
 
-    #     plt.figure()
-    #     plt.plot(C_val, DCF_kfold_z_nobal, marker='o', label='PCA 6 No balancing')
-    #     plt.plot(C_val, DCF_kfold_z_bal, marker='o', label='PCA 6 Rebalancing')
-    #     plt.plot(C_val, DCF_kfold_z_nobal_noPCA, marker='o', label='no PCA No balancing')
-    #     plt.plot(C_val, DCF_kfold_z_bal_noPCA, marker='o', label='no PCA  Rebalancing')
-    #     plt.xscale("log")
-    #     plt.xlabel("C")
-    #     plt.ylabel("min DCF")
-    #     plt.legend()
-    #     plt.savefig("../Results/SVM/" + img_name)
+        plt.figure()
+        plt.plot(C_val, DCF_kfold_z_1, marker='o', label='z-norm PCA 6 K = 1')
+        plt.plot(C_val, DCF_kfold__1, marker='o', label='PCA 6 K = 1')
+        plt.plot(C_val, DCF_kfold_z_0, marker='o', label='z-norm K = 0')
+        plt.plot(C_val, DCF_kfold__0, marker='o', label='PCA 6 K = 0')
+        plt.xscale("log")
+        plt.xlabel("C")
+        plt.ylabel("min DCF")
+        plt.legend()
+        plt.savefig("./Results/SVM/" + img_name)
         
         
     
     ### RBF KERNEL SVM
     
-    fileName = "../Results/SVM/RBF_SVM_results_PCA6.txt"
-    gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
+    # fileName = "./Results/SVM/RBF_SVM_results_no_PCA.txt"
+    # gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
 
-    with open(fileName, "w") as f:
+    # with open(fileName, "w") as f:
 
-        # DCF_kfold_z_nobal_noPCA = np.zeros([len(gamma_val), len(C_val)])
-        DCF_kfold_z_nobal_PCA6 = np.zeros([len(gamma_val), len(C_val)])
+    #     # DCF_kfold_z_nobal_noPCA = np.zeros([len(gamma_val), len(C_val)])
+    #     DCF_kfold_z_nobal_no_PCA = np.zeros([len(gamma_val), len(C_val)])
 
-        for i, gamma in enumerate(gamma_val):
-            f.write("**** min DCF for different quadratic kernel SVM models ****\n\n")
-            f.write("Values of min DCF for values of C \n")
+    #     for i, gamma in enumerate(gamma_val):
+    #         f.write("**** min DCF for different quadratic kernel SVM models ****\n\n")
+    #         f.write("Values of min DCF for values of C \n")
 
-            # f.write("\nZ-normalized features - no PCA - no rebalancing\n")
-            # for j, C in enumerate(C_val):
-            #     minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False, type = "RBF", gamma = gamma)
-            #     DCF_kfold_z_nobal_noPCA[i, j] = (minDCF)
-            #     f.write("5-fold: " + str(minDCF))
+    #         # f.write("\nZ-normalized features - no PCA - no rebalancing\n")
+    #         # for j, C in enumerate(C_val):
+    #         #     minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False, type = "RBF", gamma = gamma)
+    #         #     DCF_kfold_z_nobal_noPCA[i, j] = (minDCF)
+    #         #     f.write("5-fold: " + str(minDCF))
             
-            # print("Finished Z-normalized features - no rebalancing")
+    #         # print("Finished Z-normalized features - no rebalancing")
 
-            f.write("\nZ-normalized features -  PCA 6 - no rebalancing\n")
-            for j, C in enumerate(C_val):
-                minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False,pca_dim=6, kernel_type = "RBF", gamma = gamma)
-                DCF_kfold_z_nobal_PCA6[i, j] = (minDCF)
-                f.write("5-fold: " + str(minDCF))
+    #         f.write("\nZ-normalized features - No PCA  - no rebalancing\n")
+    #         for j, C in enumerate(C_val):
+    #             minDCF, _ = k_fold_cross_validation(DN, L, kernel_SVM, folds, pi, Cfp, Cfn, C, pi_T, K_SVM, rebalancing = False,pca_dim=None, kernel_type = "RBF", gamma = gamma)
+    #             DCF_kfold_z_nobal_no_PCA[i, j] = (minDCF)
+    #             f.write("5-fold: " + str(minDCF))
             
-            print("Finished Z-normalized features PC6 - no rebalancing")
+    #         print("Finished Z-normalized features No PCA - no rebalancing")
           
 
-        img_name = "RBF_SVM_C_kfold_nobal_PCA6.png"
+    #     img_name = "RBF_SVM_C_kfold_nobal_no_PCA.png"
 
-        plt.figure()
-        # plt.plot(C_val, DCF_kfold_z_nobal_noPCA[0,:])
-        plt.plot(C_val, DCF_kfold_z_nobal_PCA6[0,:])
-     
-        plt.xscale("log")
-        plt.xlabel("C")
-        plt.ylabel("min DCF")
-        plt.legend([r"$log \gamma = 2$",
-            r"$log \gamma = -3$", r"$log \gamma = -4$"])
-        plt.savefig("../Results/SVM/" + img_name)
+    #     plt.figure()
+    #     # plt.plot(C_val, DCF_kfold_z_nobal_noPCA[0,:])
+    #     plt.plot(C_val, DCF_kfold_z_nobal_no_PCA[0,:])
+    #     plt.plot(C_val, DCF_kfold_z_nobal_no_PCA[1,:])
+    #     plt.plot(C_val, DCF_kfold_z_nobal_no_PCA[2,:])
+             
+    #     plt.xscale("log")
+    #     plt.xlabel("C")
+    #     plt.ylabel("min DCF")
+    #     plt.legend([r"$log \gamma = -2$",
+    #         r"$log \gamma = -3$", r"$log \gamma = -4$"])
+    #     plt.savefig("./Results/SVM/" + img_name)
+  

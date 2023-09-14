@@ -1,0 +1,16 @@
+**** min DCF for different quadratic kernel SVM models ****
+
+Values of min DCF for values of C 
+
+Z-normalized features - No PCA  - no rebalancing
+5-fold: 1.05-fold: 0.48706967213114755-fold: 0.38266393442622955-fold: 0.33426229508196725-fold: 0.31143442622950825-fold: 0.34924180327868853**** min DCF for different quadratic kernel SVM models ****
+
+Values of min DCF for values of C 
+
+Z-normalized features - No PCA  - no rebalancing
+5-fold: 1.05-fold: 0.75491803278688535-fold: 0.389549180327868845-fold: 0.32487704918032795-fold: 0.29772540983606565-fold: 0.30959016393442623**** min DCF for different quadratic kernel SVM models ****
+
+Values of min DCF for values of C 
+
+Z-normalized features - No PCA  - no rebalancing
+5-fold: 1.05-fold: 0.96905737704918055-fold: 0.458360655737704965-fold: 0.390163934426229545-fold: 0.32268442622950825-fold: 0.2952254098360656
