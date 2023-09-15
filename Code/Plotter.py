@@ -202,3 +202,5 @@ if __name__ == "__main__":
     plot_variance_pca(D, L)
     print(D0.shape)
     print(D1.shape)
+
+

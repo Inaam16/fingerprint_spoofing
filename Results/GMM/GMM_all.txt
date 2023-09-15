@@ -1,0 +1,384 @@
+component 2, 2,True, True, True True :
+0.31991803278688524 + '
+'
+component 2, 4,True, True, True True :
+0.2655737704918033 + '
+'
+component 4, 2,True, True, True True :
+0.31991803278688524 + '
+'
+component 4, 4,True, True, True True :
+0.2655737704918033 + '
+'
+component 8, 2,True, True, True True :
+0.31991803278688524 + '
+'
+component 8, 4,True, True, True True :
+0.2655737704918033 + '
+'
+component 16, 2,True, True, True True :
+0.31991803278688524 + '
+'
+component 16, 4,True, True, True True :
+0.2655737704918033 + '
+'
+component 2, 2,True, True, False True :
+0.3367418032786886 + '
+'
+component 2, 4,True, True, False True :
+0.2824180327868852 + '
+'
+component 4, 2,True, True, False True :
+0.3367418032786886 + '
+'
+component 4, 4,True, True, False True :
+0.2824180327868852 + '
+'
+component 8, 2,True, True, False True :
+0.3367418032786886 + '
+'
+component 8, 4,True, True, False True :
+0.2824180327868852 + '
+'
+component 16, 2,True, True, False True :
+0.3367418032786886 + '
+'
+component 16, 4,True, True, False True :
+0.2824180327868852 + '
+'
+component 2, 2,True, True, True False :
+0.31522540983606556 + '
+'
+component 2, 4,True, True, True False :
+0.2736270491803278 + '
+'
+component 4, 2,True, True, True False : 
+0.31522540983606556 + '
+'
+component 4, 4,True, True, True False : 
+0.2736270491803278 + '
+'
+component 8, 2,True, True, True False : 
+0.31522540983606556 + '
+'
+component 8, 4,True, True, True False : 
+0.2736270491803278 + '
+'
+component 16, 2,True, True, True False :
+0.31522540983606556 + '
+'
+component 16, 4,True, True, True False :
+0.2736270491803278 + '
+'
+component 2, 2,True, True, False False :
+0.34270491803278685 + '
+'
+component 2, 4,True, True, False False :
+0.2780327868852459 + '
+'
+component 4, 2,True, True, False False :
+0.34270491803278685 + '
+'
+component 4, 4,True, True, False False :
+0.2780327868852459 + '
+'
+component 8, 2,True, True, False False :
+0.34270491803278685 + '
+'
+component 8, 4,True, True, False False :
+0.2780327868852459 + '
+'
+component 16, 2,True, True, False False :
+0.34270491803278685 + '
+'
+component 16, 4,True, True, False False :
+0.2780327868852459 + '
+'
+component 2, 2,False, True, True True :
+0.27834016393442623 + '
+'
+component 2, 4,False, True, True True :
+0.24866803278688526 + '
+'
+component 4, 2,False, True, True True :
+0.27834016393442623 + '
+'
+component 4, 4,False, True, True True :
+0.24866803278688526 + '
+'
+component 8, 2,False, True, True True :
+0.27834016393442623 + '
+'
+component 8, 4,False, True, True True :
+0.24866803278688526 + '
+'
+component 16, 2,False, True, True True :
+0.27834016393442623 + '
+'
+component 16, 4,False, True, True True :
+0.24866803278688526 + '
+'
+component 2, 2,False, True, False True :
+0.29020491803278686 + '
+'
+component 2, 4,False, True, False True :
+0.2670901639344262 + '
+'
+component 4, 2,False, True, False True :
+0.29020491803278686 + '
+'
+component 4, 4,False, True, False True :
+0.2670901639344262 + '
+'
+component 8, 2,False, True, False True :
+0.29020491803278686 + '
+'
+component 8, 4,False, True, False True :
+0.2670901639344262 + '
+'
+component 16, 2,False, True, False True :
+0.29020491803278686 + '
+'
+component 16, 4,False, True, False True :
+0.2670901639344262 + '
+'
+component 2, 2,False, True, True False :
+0.2723975409836065 + '
+'
+component 2, 4,False, True, True False :
+0.2511680327868852 + '
+'
+component 4, 2,False, True, True False :
+0.2723975409836065 + '
+'
+component 4, 4,False, True, True False :
+0.2511680327868852 + '
+'
+component 8, 2,False, True, True False :
+0.2723975409836065 + '
+'
+component 8, 4,False, True, True False :
+0.2511680327868852 + '
+'
+component 16, 2,False, True, True False :
+0.2723975409836065 + '
+'
+component 16, 4,False, True, True False :
+0.2511680327868852 + '
+'
+component 2, 2,False, True, False False :
+0.2961475409836065 + '
+'
+component 2, 4,False, True, False False :
+0.2608606557377049 + '
+'
+component 4, 2,False, True, False False :
+0.2961475409836065 + '
+'
+component 4, 4,False, True, False False :
+0.2608606557377049 + '
+'
+component 8, 2,False, True, False False :
+0.2961475409836065 + '
+'
+component 8, 4,False, True, False False :
+0.2608606557377049 + '
+'
+component 16, 2,False, True, False False :
+0.2961475409836065 + '
+'
+component 16, 4,False, True, False False :
+0.2608606557377049 + '
+'
+component 2, 2,True, False, True True :
+0.29553278688524587 + '
+'
+component 2, 4,True, False, True True :
+0.2530327868852459 + '
+'
+component 4, 2,True, False, True True :
+0.29553278688524587 + '
+'
+component 4, 4,True, False, True True :
+0.2530327868852459 + '
+'
+component 8, 2,True, False, True True :
+0.29553278688524587 + '
+'
+component 8, 4,True, False, True True :
+0.2530327868852459 + '
+'
+component 16, 2,True, False, True True :
+0.29553278688524587 + '
+'
+component 16, 4,True, False, True True :
+0.2530327868852459 + '
+'
+component 2, 2,True, False, False True :
+0.31956967213114756 + '
+'
+component 2, 4,True, False, False True :
+0.24616803278688523 + '
+'
+component 4, 2,True, False, False True :
+0.31956967213114756 + '
+'
+component 4, 4,True, False, False True :
+0.24616803278688523 + '
+'
+component 8, 2,True, False, False True :
+0.31956967213114756 + '
+'
+component 8, 4,True, False, False True :
+0.24616803278688523 + '
+'
+component 16, 2,True, False, False True :
+0.31956967213114756 + '
+'
+component 16, 4,True, False, False True :
+0.24616803278688523 + '
+'
+component 2, 2,True, False, True False :
+0.30676229508196723 + '
+'
+component 2, 4,True, False, True False :
+0.25831967213114754 + '
+'
+component 4, 2,True, False, True False :
+0.30676229508196723 + '
+'
+component 4, 4,True, False, True False :
+0.25831967213114754 + '
+'
+component 8, 2,True, False, True False :
+0.30676229508196723 + '
+'
+component 8, 4,True, False, True False :
+0.25831967213114754 + '
+'
+component 16, 2,True, False, True False :
+0.30676229508196723 + '
+'
+component 16, 4,True, False, True False :
+0.25831967213114754 + '
+'
+component 2, 2,True, False, False False :
+0.2968032786885246 + '
+'
+component 2, 4,True, False, False False :
+0.2805327868852459 + '
+'
+component 4, 2,True, False, False False :
+0.2968032786885246 + '
+'
+component 4, 4,True, False, False False :
+0.2805327868852459 + '
+'
+component 8, 2,True, False, False False :
+0.2968032786885246 + '
+'
+component 8, 4,True, False, False False :
+0.2805327868852459 + '
+'
+component 16, 2,True, False, False False :
+0.2968032786885246 + '
+'
+component 16, 4,True, False, False False :
+0.2805327868852459 + '
+'
+component 2, 2,False, False, True True :
+0.2705122950819672 + '
+'
+component 2, 4,False, False, True True : 
+0.27334016393442623 + '
+'
+component 4, 2,False, False, True True : 
+0.2705122950819672 + '
+'
+component 4, 4,False, False, True True : 
+0.27334016393442623 + '
+'
+component 8, 2,False, False, True True :
+0.2705122950819672 + '
+'
+component 8, 4,False, False, True True :
+0.27334016393442623 + '
+'
+component 16, 2,False, False, True True :
+0.2705122950819672 + '
+'
+component 16, 4,False, False, True True :
+0.27334016393442623 + '
+'
+component 2, 2,False, False, False True :
+0.2767622950819672 + '
+'
+component 2, 4,False, False, False True :
+0.2683401639344262 + '
+'
+component 4, 2,False, False, False True :
+0.2767622950819672 + '
+'
+component 4, 4,False, False, False True :
+0.2683401639344262 + '
+'
+component 8, 2,False, False, False True : 
+0.2767622950819672 + '
+'
+component 8, 4,False, False, False True : 
+0.2683401639344262 + '
+'
+component 16, 2,False, False, False True : 
+0.2767622950819672 + '
+'
+component 16, 4,False, False, False True : 
+0.2683401639344262 + '
+'
+component 2, 2,False, False, True False : 
+0.2655327868852459 + '
+'
+component 2, 4,False, False, True False : 
+0.2639754098360656 + '
+'
+component 4, 2,False, False, True False :
+0.2655327868852459 + '
+'
+component 4, 4,False, False, True False :
+0.2639754098360656 + '
+'
+component 8, 2,False, False, True False :
+0.2655327868852459 + '
+'
+component 8, 4,False, False, True False :
+0.2639754098360656 + '
+'
+component 16, 2,False, False, True False :
+0.2655327868852459 + '
+'
+component 16, 4,False, False, True False :
+0.2639754098360656 + '
+'
+component 2, 2,False, False, False False :
+0.2752254098360656 + '
+'
+component 2, 4,False, False, False False :
+0.2695696721311476 + '
+'
+component 4, 2,False, False, False False :
+0.2752254098360656 + '
+'
+component 4, 4,False, False, False False :
+0.2695696721311476 + '
+'
+component 8, 2,False, False, False False :
+0.2752254098360656 + '
+'
+component 8, 4,False, False, False False :
+0.2695696721311476 + '
+'
+component 16, 2,False, False, False False :
+0.2752254098360656 + '
+'
+component 16, 4,False, False, False False :
+0.2695696721311476 + '
+'

@@ -113,47 +113,127 @@ def LBG(X, gmm, t, alpha, psi, diag, tied):
     return gmm, ll
 
 # Train a GMM classifier (one GMM for each class) and evaluate it on training data
-def GMM_classifier(DTR, LTR, DTE, LTE, n_classes, components, pi, Cfn, Cfp, diag, tied, t = 1e-6, psi = 0.01, alpha = 0.1, f=0, type=""):
+def GMM_classifier(DTR, LTR, DTE, LTE, n_classes, components0, components1, pi, Cfn, Cfp, diag, tied, t = 1e-6, psi = 0.01, alpha = 0.1, f=0, type=""):
 
     S = np.zeros([n_classes, DTE.shape[1]])
     all_gmm = []
 
     # Repeat until the desired number of components is reached, but analyze also
     # intermediate models with less components
-    for count in range(int(np.log2(components))):
+    for count in range(int(np.log2(components0))):
+        for count1 in range(int(np.log2(components1))):
         # Train one GMM for each class
-        for c in range(n_classes):
-            if count == 0:
+            for c in range(n_classes):
+                if count == 0:
+                    # Start from max likelihood solution for one component
+                    covNew = np.cov(DTR[:, LTR == c])
+                    # Impose the constraint on the covariance matrix
+                    U, s, _ = np.linalg.svd(covNew)
+                    s[s<psi] = psi
+                    covNew = np.dot(U, s.reshape([s.shape[0], 1])*U.T)
+                    starting_gmm = [(1.0, np.mean(DTR[:, LTR == c], axis = 1), covNew)]
+                    all_gmm.append(starting_gmm)
+                else:
+                    starting_gmm = all_gmm[c]
+
+                # Train the new components and compute log-densities
+                new_gmm, _ = LBG(DTR[:, LTR == c], starting_gmm, t, alpha, psi, diag, tied)
+                all_gmm[c] = new_gmm
+                logdens, _ = logpdf_GMM(DTE, new_gmm)
+                S[c, :] = logdens
+
+            # Compute minDCF for the model with the current number of components
+            llr = compute_llr(S)
+            minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, LTE)
+
+            if f == 0:
+                print("Components: %d,      min DCF: %f" % (2**(count + 1), minDCF))
+            else:
+                # Save results on file
+                print("Components: %d,      min DCF: %f" % (2**(count + 1), minDCF))
+                f.write("\ncomponents: " + str(2**(count + 1)) + "\n")
+                f.write("\n" + type + ": " + str(minDCF) + "\n")
+
+    return llr, minDCF
+
+
+
+def GMM_classifier_1(DTR, LTR, DTE, LTE, n_classes, components0, components1, diag0, tied0, diag1, tied1, pi, Cfn, Cfp, t = 1e-6, psi = 0.01, alpha = 0.1, f=1, type=""):
+
+    S = np.zeros([n_classes, DTE.shape[1]])
+    all_gmm = []
+
+    # Repeat until the desired number of components is reached, but analyze also
+    # intermediate models with less components
+    for count0 in range(int(np.log2(components0))):
+       
+        # Train one GMM for each class
+           
+            if count0 == 0:
                 # Start from max likelihood solution for one component
-                covNew = np.cov(DTR[:, LTR == c])
+                covNew = np.cov(DTR[:, LTR == 0])
                 # Impose the constraint on the covariance matrix
                 U, s, _ = np.linalg.svd(covNew)
                 s[s<psi] = psi
                 covNew = np.dot(U, s.reshape([s.shape[0], 1])*U.T)
-                starting_gmm = [(1.0, np.mean(DTR[:, LTR == c], axis = 1), covNew)]
+                starting_gmm = [(1.0, np.mean(DTR[:, LTR == 0], axis = 1), covNew)]
                 all_gmm.append(starting_gmm)
             else:
-                starting_gmm = all_gmm[c]
+                starting_gmm = all_gmm[0]
+    for count1 in range(int(np.log2(components1))):
+       
+        # Train one GMM for each class
+           
+            if count1 == 0:
+                # Start from max likelihood solution for one component
+                covNew = np.cov(DTR[:, LTR == 1])
+                # Impose the constraint on the covariance matrix
+                U, s, _ = np.linalg.svd(covNew)
+                s[s<psi] = psi
+                covNew = np.dot(U, s.reshape([s.shape[0], 1])*U.T)
+                starting_gmm = [(1.0, np.mean(DTR[:, LTR == 1], axis = 1), covNew)]
+                all_gmm.append(starting_gmm)
+            else:
+                starting_gmm = all_gmm[1]
 
             # Train the new components and compute log-densities
-            new_gmm, _ = LBG(DTR[:, LTR == c], starting_gmm, t, alpha, psi, diag, tied)
-            all_gmm[c] = new_gmm
+            new_gmm, _ = LBG(DTR[:, LTR == 0], starting_gmm, t, alpha, psi, diag0, tied0)
+            all_gmm[0] = new_gmm
             logdens, _ = logpdf_GMM(DTE, new_gmm)
-            S[c, :] = logdens
+            S[0, :] = logdens
 
-        # Compute minDCF for the model with the current number of components
-        llr = compute_llr(S)
-        minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, LTE)
+            new_gmm, _ = LBG(DTR[:, LTR == 1], starting_gmm, t, alpha, psi, diag1, tied1)
+            all_gmm[1] = new_gmm
+            logdens, _ = logpdf_GMM(DTE, new_gmm)
+            S[1, :] = logdens
 
-        if f == 0:
-            print("Components: %d,      min DCF: %f" % (2**(count + 1), minDCF))
-        else:
-            # Save results on file
-            print("Components: %d,      min DCF: %f" % (2**(count + 1), minDCF))
-            f.write("\ncomponents: " + str(2**(count + 1)) + "\n")
-            f.write("\n" + type + ": " + str(minDCF) + "\n")
+            # Compute minDCF for the model with the current number of components
+            llr = compute_llr(S)
+            minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, LTE)
 
+            # if f == 0:
+            #     # print("Components0: %d, Components1: %d      min DCF: %f" % (2**(count0 + 1), 2**(count1 + 1), minDCF))
+            # else:
+            #     # Save results on file
+            #     print("Components0: %d, Components1: %d      min DCF: %f" % (2**(count0 + 1), 2**(count1 + 1), minDCF))
+            #     f.write("\ncomponents: " + str(2**(count0 + 1)) +", " +str(2**(count1 + 1)) + "\n")
+            #     f.write("\n" + type + ": " + str(minDCF) + "\n")
+   
     return llr, minDCF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Perform k-fold cross validation on test data for the specified model
@@ -196,38 +276,110 @@ def k_fold_cross_validation(D, L, k, pi, Cfp, Cfn, diag, tied, components, pca_d
     return minDCF, llr
 
 
+
+
+
+
+
+def k_fold_cross_validation_1(D, L, k, pi, Cfp, Cfn, components0, components1, diag0, tied0, diag1, tied1, pca_dim=None, seed = 0):
+
+    np.random.seed(seed)
+    idx = np.random.permutation(D.shape[1])
+
+    start_index = 0
+    elements = int(D.shape[1] / k)
+
+    llr = np.zeros([D.shape[1], ])
+
+    for count in range(k):
+        # Define training and test partitions
+        if start_index + elements > D.shape[1]:
+            end_index = D.shape[1]
+        else:
+            end_index = start_index + elements
+
+        idxTrain = np.concatenate((idx[0:start_index], idx[end_index:]))
+        idxTest = idx[start_index:end_index]
+
+        DTR = D[:, idxTrain]
+        LTR = L[idxTrain]
+
+        DTE = D[:, idxTest]
+        LTE = L[idxTest]
+
+        if pca_dim:
+            DTR, LTR, DTE, LTE = PCA_preproccessor(DTR, LTR, DTE, LTE, pca_dim)
+
+        # Train the classifier and compute llr on the current partition
+        llr[idxTest], _ = GMM_classifier_1(DTR, LTR, DTE, LTE, 2, components0, components1, diag0, tied0, diag1, tied1, pi, Cfn, Cfp, t = 1e-6, psi = 0.01, alpha = 0.1, f=0, type="")
+        start_index += elements
+
+    # Evaluate results after all k-fold iterations (when all llr are available)
+    minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, L)
+
+    return minDCF, llr
+
+def results_GMM(DTR, LTR, comp0, comp1, k, pi, Cfp, Cfn, diag0, tied0, diag1, tied1, pca_dim ):
+      
+      minDCF, _ = k_fold_cross_validation_1(DTR, LTR, k, pi, Cfp, Cfn, comp0, comp1, diag0, tied0, diag1, tied1, pca_dim)
+      return minDCF
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
 
     ### Train and evaluate different GMM models using cross validation and single split
     ### Plot figures for hyperparameter optimization
 
-    D, L = load("../Train.txt")
-    DN = Z_score(D)
-    components_val = [2, 4, 8, 16]
-    k = 5
-    pi = 1/11
-    Cfn, Cfp = 1, 1
-    pca_dim = 6
-    filename = "../Results/GMM_results.txt"
 
-    DCF_z = np.zeros([4, len(components_val)])
+
+    D, L = load("./Train.txt")
+    DN = Z_score(D)
+    components_val0 = [2, 4, 8, 16]
+    components_val1 = [2, 4]
+
+    for tied0 in [True, False]:
+        for diag0 in [True, False]:
+            for tied1 in [True, False]:
+                for diag1 in [True, False]:
+                    for i in components_val0:
+                        for j in components_val1:
+                            print(f"component {i}, {j},{diag0}, {tied0}, {diag1} {tied1} : ")
+                            minDCF = results_GMM(D, L, i, j, 5, 1/11, 1, 1, diag0, tied0, diag1, tied1, 6)
+                            print(f"{minDCF} + '\n'")
+
+
     
-    with open(filename, "w") as f:
-        plt.figure()
-        f.write("**** min DCF for different GMM models *****\n\n")
-        for tied, diag, pca in product((True, False),(True, False),(None, pca_dim)):
-            f.write("\nTied: " + str(tied) + "\n")
-            f.write("\nDiag: " + str(diag) + "\n")
-            f.write("\nPCA: " + str(pca) + "\n")
-            DCF = []
-            for components in components_val:
-                f.write("\ncomponents: " + str(components) + "\n")
-                minDCF, _ = k_fold_cross_validation(DN, L, k, pi, Cfp, Cfn, diag, tied, components, pca)
-                DCF.append(minDCF)
-                f.write("\nZ-norm: " + str(minDCF) + "\n")
-            label = f"GGM-{'tied' if tied else 'not tied'}-{'diag' if diag else 'not diag'}-{'PCA6' if pca else ''}"
-            plt.plot(components_val, DCF, marker='o', linestyle='dashed', label=label)
-    plt.xlabel("Components")
-    plt.ylabel("min DCF")
-    plt.legend()
-    plt.savefig("../Visualization/GMM.png")
+    # k = 5
+    # pi = 1/11
+    # Cfn, Cfp = 1, 1
+    # pca_dim = 6
+    # filename = "./Results/GMM/GMM_results.txt"
+
+    # DCF_z = np.zeros([4, len(components_val1)])
+    
+    # with open(filename, "w") as f:
+    #     plt.figure()
+    #     f.write("**** min DCF for different GMM models *****\n\n")
+    #     for tied, diag, pca in product((True, False),(True, False),(None, pca_dim)):
+    #         f.write("\nTied: " + str(tied) + "\n")
+    #         f.write("\nDiag: " + str(diag) + "\n")
+    #         f.write("\nPCA: " + str(pca) + "\n")
+    #         DCF = []
+    #         for components in components_val:
+    #             f.write("\ncomponents: " + str(components) + "\n")
+    #             minDCF, _ = k_fold_cross_validation(DN, L, k, pi, Cfp, Cfn, diag, tied, components, pca)
+    #             DCF.append(minDCF)
+    #             f.write("\nZ-norm: " + str(minDCF) + "\n")
+    #         label = f"GGM-{'tied' if tied else 'not tied'}-{'diag' if diag else 'not diag'}-{'PCA6' if pca else ''}"
+    #         plt.plot(components_val, DCF, marker='o', linestyle='dashed', label=label)
+    # plt.xlabel("Components")
+    # plt.ylabel("min DCF")
+    # plt.legend()
+    # plt.savefig("../Visualization/GMM.png")

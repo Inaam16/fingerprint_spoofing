@@ -1,6 +1,7 @@
 import numpy as np
 
 
+
 def confusion_matrix(true_labels, predicted_labels, n_labels):
     """Compute confusion matrix with given predictions"""
     conf_matrix = np.zeros([n_labels, n_labels])
@@ -46,3 +47,17 @@ def min_DCF(llr, pi, Cfn, Cfp, true_labels):
     return minDCF, opt_t
 
 
+def optimal_Bayes_decisions(llr, pi, Cfn, Cfp):
+
+    t = - np.log(pi * Cfn / ((1 - pi) * Cfp))
+
+    PredictedLabels = np.zeros([llr.shape[0]])
+    PredictedLabels[llr > t] = 1
+
+    return PredictedLabels
+
+def act_DCF(llr, pi, Cfn, Cfp, true_labels):
+    opt_decisions = optimal_Bayes_decisions(llr, pi, Cfn, Cfp)
+    M = confusion_matrix(true_labels, opt_decisions, 2)
+    _, DCF = Bayes_risk(M, pi, Cfn, Cfp)
+    return DCF
