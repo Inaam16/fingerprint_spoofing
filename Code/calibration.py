@@ -102,6 +102,8 @@ def Bayes_error_plots(llr, true_labels, title):
         M = confusion_matrix(true_labels, pred, 2)
         _, DCF[index] = Bayes_risk(M, pi_tilde, 1, 1)
         minDCF[index], _ = min_DCF(llr, pi_tilde, 1, 1, true_labels)
+        print(f"{pi_tilde} : minDCF: {minDCF[index]} , actDCF{DCF[index]}")
+    
     plt.figure()
     plt.plot(effPriorLogOdds, DCF, label='DCF', color='r')
     plt.plot(effPriorLogOdds, minDCF, label='minDCF', color='b')
@@ -276,6 +278,11 @@ if __name__ == "__main__":
     # llrGMM = np.load("./llrGMM.npy")
     # llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11, "GMM")
     # Bayes_error_plots(llrGMM, L, "GMM")
+    # _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
+    # np.save("llrGMM.npy", llrGMM)
+    # llrGMM = np.load("./llrGMM.npy")
+    # llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11, "GMM")
+    # Bayes_error_plots(llrGMM, L, "GMM")
 
     # _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
     # np.save("llrGMM.npy", llrGMM)
@@ -335,3 +342,8 @@ if __name__ == "__main__":
     
     
     
+    _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
+    np.save("llrGMM_cal.npy", llrGMM)
+    llrGMM = np.load("./llrGMM_cal.npy")
+    llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11,  "GMM calibrated")
+    Bayes_error_plots(llrGMMcal, L, "GMM_calibrated")
