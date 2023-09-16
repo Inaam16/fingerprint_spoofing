@@ -312,4 +312,5 @@ if __name__ == "__main__":
     # print("Results Tied Naive Bayes")
     #results_Tied_Naive_Bayes(0.1, 1, 1, "2")
 
-    print(compute_Cprim(0.530, 0.510))
+    #print(compute_Cprim(0.530, 0.510))
+

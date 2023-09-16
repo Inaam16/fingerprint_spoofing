@@ -386,3 +386,6 @@ if __name__ == "__main__":
     # plt.ylabel("min DCF")
     # plt.legend()
     # plt.savefig("../Visualization/GMM.png")
+
+                                  ####### Evaluation #######
+
