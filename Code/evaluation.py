@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
 
 
-    DTR, LTR = load("./Train.txt")
-    DTE, LTE = load("./Test.txt")  
+    DTR, LTR = load("../Train.txt")
+    DTE, LTE = load("../Test.txt")  
 
 
     # Z-score normalization
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     K_SVM = 1
     
     ### Evaluating LR
-    filename = "./Results/Evaluation/Eval_LR_8.txt"
+    # filename = "./Results/Evaluation/Eval_LR_8.txt"
 
     lambda_values = [0, 1e-6, 1e-4, 1e-2, 1, 100]
     with open(filename, "w") as f:
@@ -47,9 +47,9 @@ if __name__ == "__main__":
                 DTE = DTE
             for l in lambda_values:
                 
-                _, minDCF_lr = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, l, 1/11, 1/11, 1, 1)
-                f.write(f"lambda : {l} , minDCF: {minDCF_lr} \n ")
-    print(minDCF_lr)
+    #             _, minDCF_lr = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, l, 1/11, 1/11, 1, 1)
+    #             f.write(f"lambda : {l} , minDCF: {minDCF_lr} \n ")
+    # print(minDCF_lr)
 
 
 
