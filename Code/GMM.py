@@ -159,7 +159,8 @@ def GMM_classifier(DTR, LTR, DTE, LTE, n_classes, components0, components1, pi, 
 
 
 def GMM_classifier_1(DTR, LTR, DTE, LTE, n_classes, components0, components1, diag0, tied0, diag1, tied1, pi, Cfn, Cfp, t = 1e-6, psi = 0.01, alpha = 0.1, f=1, type=""):
-
+    
+    
     S = np.zeros([n_classes, DTE.shape[1]])
     all_gmm = []
 
@@ -180,10 +181,13 @@ def GMM_classifier_1(DTR, LTR, DTE, LTE, n_classes, components0, components1, di
                 all_gmm.append(starting_gmm)
             else:
                 starting_gmm = all_gmm[0]
+            new_gmm, _ = LBG(DTR[:, LTR == 0], starting_gmm, t, alpha, psi, diag0, tied0)
+            all_gmm[0] = new_gmm
+            logdens, _ = logpdf_GMM(DTE, new_gmm)
+            S[0, :] = logdens
     for count1 in range(int(np.log2(components1))):
        
         # Train one GMM for each class
-           
             if count1 == 0:
                 # Start from max likelihood solution for one component
                 covNew = np.cov(DTR[:, LTR == 1])
@@ -197,19 +201,15 @@ def GMM_classifier_1(DTR, LTR, DTE, LTE, n_classes, components0, components1, di
                 starting_gmm = all_gmm[1]
 
             # Train the new components and compute log-densities
-            new_gmm, _ = LBG(DTR[:, LTR == 0], starting_gmm, t, alpha, psi, diag0, tied0)
-            all_gmm[0] = new_gmm
-            logdens, _ = logpdf_GMM(DTE, new_gmm)
-            S[0, :] = logdens
-
             new_gmm, _ = LBG(DTR[:, LTR == 1], starting_gmm, t, alpha, psi, diag1, tied1)
             all_gmm[1] = new_gmm
             logdens, _ = logpdf_GMM(DTE, new_gmm)
             S[1, :] = logdens
 
             # Compute minDCF for the model with the current number of components
-            llr = compute_llr(S)
-            minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, LTE)
+    llr = compute_llr(S)
+    minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, LTE)
+
 
             # if f == 0:
             #     # print("Components0: %d, Components1: %d      min DCF: %f" % (2**(count0 + 1), 2**(count1 + 1), minDCF))
@@ -342,7 +342,7 @@ if __name__ == "__main__":
     D, L = load("./Train.txt")
     DN = Z_score(D)
     components_val0 = [2, 4, 8, 16]
-    components_val1 = [2, 4]
+    components_val1 = [1, 2, 4]
 
     for tied0 in [True, False]:
         for diag0 in [True, False]:
@@ -351,7 +351,10 @@ if __name__ == "__main__":
                     for i in components_val0:
                         for j in components_val1:
                             print(f"component {i}, {j},{diag0}, {tied0}, {diag1} {tied1} : ")
-                            minDCF = results_GMM(D, L, i, j, 5, 1/11, 1, 1, diag0, tied0, diag1, tied1, 6)
+                            minDCF = results_GMM(D, L, i, j, 5, 1/11, 1, 1, diag0, tied0, diag1, tied1, pca_dim=None)
+                            filename = "./Results/GMM/GMM_results.txt"
+                            with open(filename, "w") as f:
+                                f.write(f"\ncomponents ({i}, {j} {diag0} {tied0} {diag1} {tied1}): "  + "\n")
                             print(f"{minDCF} + '\n'")
 
 
