@@ -115,6 +115,141 @@ def Bayes_error_plots(llr, true_labels, title):
     return DCF, minDCF
 
 
+
+# Perform cross validation to evaluate fusion of 2 models and print results
+def analyse_fusion_kfold2(D1, D2, L, k, pi, Cfp, Cfn, pi_T, name):
+    # Choose the best value for lambda for logistic regression (try different ones)
+    min_minDCF = 1
+    min_actDCF = 1
+    best_lambda = 0
+    for l in [0, 1e-6, 1e-3, 0.1, 1]:
+        minDCF, actDCF = k_fold_fusion2(D1.reshape([1,D1.shape[0]]), D2.reshape([1,D2.shape[0]]), L, k, pi, Cfp, Cfn, pi_T, l)
+        if minDCF < min_minDCF:
+            min_minDCF = minDCF
+            min_actDCF = actDCF
+            best_lambda = l
+
+    print("\n\n******* " + name + " ********")
+    print("min DCF: " + str(min_minDCF))
+    print("act DCF: " + str(min_actDCF))
+    print("best lambda: " + str(best_lambda))
+    
+    
+    
+
+# Perform cross validation to evaluate fusion of 3 models and print results
+def analyse_fusion_kfold3(D1, D2, D3, L, k, pi, Cfp, Cfn, pi_T, name):
+    # Choose the best value for lambda for logistic regression (try different ones)
+    min_minDCF = 1
+    min_actDCF = 1
+    best_lambda = 0
+    for l in [0, 1e-6, 1e-3, 0.1, 1]:
+        minDCF, actDCF = k_fold_fusion3(D1.reshape([1,D1.shape[0]]), D2.reshape([1,D2.shape[0]]), D3.reshape([1,D3.shape[0]]), L, k, pi, Cfp, Cfn, pi_T, l)
+        if minDCF < min_minDCF:
+            min_minDCF = minDCF
+            min_actDCF = actDCF
+            best_lambda = l
+
+    print("\n\n******* " + name + " ********")
+    print("min DCF: " + str(min_minDCF))
+    print("act DCF: " + str(min_actDCF))
+    print("best lambda: " + str(best_lambda))
+
+
+# Perform cross validation to evaluate the fusion of 2 models (scores are
+# combined using linear logistic regression)
+def k_fold_fusion2(D1, D2, L, k, pi, Cfp, Cfn, pi_T, l, seed = 0):
+
+    np.random.seed(seed)
+    idx = np.random.permutation(D1.shape[1])
+
+    start_index = 0
+    elements = int(D1.shape[1] / k)
+
+    llr = np.zeros([D1.shape[1], ])
+
+    for count in range(k):
+
+        if start_index + elements > D1.shape[1]:
+            end_index = D1.shape[1]
+        else:
+            end_index = start_index + elements 
+
+        # Define training and test partitions
+        idxTrain = np.concatenate((idx[0:start_index], idx[end_index:]))
+        idxTest = idx[start_index:end_index]
+
+        # Define training samples as arrays of the scores of the three different models
+        DTR = np.zeros([2, idxTrain.shape[0]])  
+        DTR[0, :] = D1[:, idxTrain].reshape([D1[:, idxTrain].shape[1], ])
+        DTR[1, :] = D2[:, idxTrain].reshape([D2[:, idxTrain].shape[1], ])
+        DTE = np.zeros([2, idxTest.shape[0]])
+        DTE[0, :] = D1[:, idxTest].reshape([D1[:, idxTest].shape[1], ])
+        DTE[1, :] = D2[:, idxTest].reshape([D2[:, idxTest].shape[1], ])
+
+        LTR = L[idxTrain]
+        LTE = L[idxTest]
+
+        # Train a logistic regression model 
+        llr[idxTest], _ = lr.linear_logistic_regression(DTR, LTR, DTE, LTE, l, pi_T, pi, Cfn, Cfp)
+        
+        start_index += elements
+
+    # Calculate min and act DCF for the fusion
+    minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, L)
+    actDCF = act_DCF(llr, pi, Cfn, Cfp, L)
+
+    return minDCF, actDCF
+
+
+# Perform cross validation to evaluate the fusion of 3 models (scores are
+# combined using linear logistic regression)
+def k_fold_fusion3(D1, D2, D3, L, k, pi, Cfp, Cfn, pi_T, l, seed = 0):
+
+    np.random.seed(seed)
+    idx = np.random.permutation(D1.shape[1])
+
+    start_index = 0
+    elements = int(D1.shape[1] / k)
+
+    llr = np.zeros([D1.shape[1], ])
+
+    for count in range(k):
+
+        if start_index + elements > D1.shape[1]:
+            end_index = D1.shape[1]
+        else:
+            end_index = start_index + elements 
+
+        # Define training and test partitions
+        idxTrain = np.concatenate((idx[0:start_index], idx[end_index:]))
+        idxTest = idx[start_index:end_index]
+
+        # Define training samples as arrays of the scores of the three different models
+        DTR = np.zeros([3, idxTrain.shape[0]])  
+        DTR[0, :] = D1[:, idxTrain].reshape([D1[:, idxTrain].shape[1], ])
+        DTR[1, :] = D2[:, idxTrain].reshape([D2[:, idxTrain].shape[1], ])
+        DTR[2, :] = D3[:, idxTrain].reshape([D3[:, idxTrain].shape[1], ])
+        DTE = np.zeros([3, idxTest.shape[0]])
+        DTE[0, :] = D1[:, idxTest].reshape([D1[:, idxTest].shape[1], ])
+        DTE[1, :] = D2[:, idxTest].reshape([D2[:, idxTest].shape[1], ])
+        DTE[2, :] = D3[:, idxTest].reshape([D3[:, idxTest].shape[1], ])
+
+        LTR = L[idxTrain]
+        LTE = L[idxTest]
+
+        # Train a logistic regression model 
+        llr[idxTest], _ = lr.linear_logistic_regression(DTR, LTR, DTE, LTE, l, pi_T, pi, Cfn, Cfp)
+        
+        start_index += elements
+
+    # Calculate min and act DCF for the fusion
+    minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, L)
+    actDCF = act_DCF(llr, pi, Cfn, Cfp, L)
+
+    return minDCF, actDCF
+
+
 if __name__ == "__main__":
 
     D, L = load("../Train.txt")
@@ -150,23 +285,49 @@ if __name__ == "__main__":
     
     
     
-    _, llrSVM = SVM.k_fold_cross_validation(DN, L,SVM.kernel_SVM, 5, 1/11, 1, 1,1e-2, 1/11 , 1, False, None, 0, "poly",6)
-    np.save("llrSVM.npy", llrSVM)
-    llrSVM = np.load("./llrSVM.npy")
-    llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11, "SVM")
-    Bayes_error_plots(llrSVM, L, "SVM")
+    # _, llrSVM = SVM.k_fold_cross_validation(DN, L,SVM.kernel_SVM, 5, 1/11, 1, 1,1e-2, 1/11 , 1, False, None, 0, "poly",6)
+    # np.save("llrSVM.npy", llrSVM)
+    # llrSVM = np.load("./llrSVM.npy")
+    # llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11, "SVM")
+    # Bayes_error_plots(llrSVM, L, "SVM")
 
-    _, llrSVM = SVM.k_fold_cross_validation(DN, L,SVM.kernel_SVM, 5, 1/11, 1, 1,1e-2, 1/11 , 1, False, None, 0, "poly",6)
-    np.save("llrSVM_cal.npy", llrSVM)
-    llrSVM = np.load("./llrSVM_cal.npy")
-    llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11,  "SVM calibrated")
-    Bayes_error_plots(llrSVMcal, L, "SVM_cal")
+    # _, llrSVM = SVM.k_fold_cross_validation(DN, L,SVM.kernel_SVM, 5, 1/11, 1, 1,1e-2, 1/11 , 1, False, None, 0, "poly",6)
+    # np.save("llrSVM_cal.npy", llrSVM)
+    # llrSVM = np.load("./llrSVM_cal.npy")
+    # llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11,  "SVM calibrated")
+    # Bayes_error_plots(llrSVMcal, L, "SVM_cal")
     
     
     
-    
-   
-    
+    ###############  Fusion ##############
+    #Combining our best models two by two:
+    llrLR = np.load("../Calibration/llrLR.npy")
+    llrSVM = np.load("../Calibration/llrGMM.npy")
+    llrGMM = np.load("../Calibration/llrGMM.npy")
+    # analyse_fusion_kfold2(llrGMM, llrLR, L, 5, 1/11, 1, 1, 1/11, "GMM + LR")
+    # analyse_fusion_kfold2(llrGMM, llrSVM, L, 5, 1/11, 1, 1, 1/11, "GMM + SVM")
+    # analyse_fusion_kfold2(llrLR, llrSVM, L, 5, 1/11, 1, 1, 1/11, "LR + SVM")
+
+
+    #Combining our best models all together:
+    analyse_fusion_kfold3(llrSVM, llrLR, llrGMM, L, 5, 1/11, 1, 1, 1/11, "SVM + LR + GMM")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     
     
