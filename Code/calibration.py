@@ -130,11 +130,12 @@ def analyse_fusion_kfold2(D1, D2, L, k, pi, Cfp, Cfn, pi_T, name):
             min_minDCF = minDCF
             min_actDCF = actDCF
             best_lambda = l
-
-    print("\n\n******* " + name + " ********")
-    print("min DCF: " + str(min_minDCF))
-    print("act DCF: " + str(min_actDCF))
-    print("best lambda: " + str(best_lambda))
+    
+        print("\n\n******* " + name + " ********")
+        print("min DCF: " + str(min_minDCF))
+        print("min DCF: " + str(minDCF))
+        print("act DCF: " + str(min_actDCF))
+        print("best lambda: " + str(best_lambda))
     
     
     
@@ -311,13 +312,13 @@ if __name__ == "__main__":
     llrLR = np.load("../Calibration/llrLR.npy")
     llrSVM = np.load("../Calibration/llrGMM.npy")
     llrGMM = np.load("../Calibration/llrGMM.npy")
-    # analyse_fusion_kfold2(llrGMM, llrLR, L, 5, 1/11, 1, 1, 1/11, "GMM + LR")
+    analyse_fusion_kfold2(llrGMM, llrLR, L, 5, 1/11, 1, 1, 1/11, "GMM + LR")
     # analyse_fusion_kfold2(llrGMM, llrSVM, L, 5, 1/11, 1, 1, 1/11, "GMM + SVM")
     # analyse_fusion_kfold2(llrLR, llrSVM, L, 5, 1/11, 1, 1, 1/11, "LR + SVM")
 
 
     #Combining our best models all together:
-    analyse_fusion_kfold3(llrSVM, llrLR, llrGMM, L, 5, 1/11, 1, 1, 1/11, "SVM + LR + GMM")
+    #analyse_fusion_kfold3(llrSVM, llrLR, llrGMM, L, 5, 1/11, 1, 1, 1/11, "SVM + LR + GMM")
 
 
 
