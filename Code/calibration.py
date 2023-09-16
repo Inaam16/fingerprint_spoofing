@@ -4,6 +4,8 @@ from Metrics import act_DCF, optimal_Bayes_decisions, min_DCF, confusion_matrix,
 import logistic_regression as lr
 from Utilities import load
 import GMM
+import SVM
+from MLCore import Z_score
 import matplotlib.pyplot as plt
 # Perform cross validation to evaluate score calibration (scores are 
 # calibrated with a linear logistic regression model)
@@ -108,7 +110,7 @@ def Bayes_error_plots(llr, true_labels, title):
     plt.xlabel(r'$log\frac{\pi}{1-\pi}$')
     plt.ylabel("DCF")
     plt.legend()
-    plt.savefig(f"./Results/LR/{title}")
+    plt.savefig(f"../Results/SVM/{title}")
     plt.title(title)
     plt.close()
 
@@ -117,7 +119,8 @@ def Bayes_error_plots(llr, true_labels, title):
 
 if __name__ == "__main__":
 
-    D, L = load("./Train.txt")
+    D, L = load("../Train.txt")
+    DN= Z_score(D)
     # preprocessor = lr.partial(lr.PCA_preproccessor, dim=6)
     # _, llrLR = lr.k_fold_cross_validation(D, L, lr.quadratic_logistic_regression, 5, 1/11, 1, 1, 0, 1/11, preprocessor = preprocessor)
     # np.save("llrLR.npy", llrLR)
@@ -140,7 +143,44 @@ if __name__ == "__main__":
     # llrGMM = np.load("./llrGMM.npy")
     # llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11, "GMM")
     # Bayes_error_plots(llrGMM, L, "GMM")
+    # _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
+    # np.save("llrGMM.npy", llrGMM)
+    # llrGMM = np.load("./llrGMM.npy")
+    # llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11, "GMM")
+    # Bayes_error_plots(llrGMM, L, "GMM")
 
+    # _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
+    # np.save("llrGMM.npy", llrGMM)
+    # llrGMM = np.load("./llrGMM.npy")
+    # llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11,  "GMM calibrated")
+    # Bayes_error_plots(llrGMMcal, L, "GMM")
+    
+    
+    
+    _, llrSVM = SVM.k_fold_cross_validation(DN, L,SVM.kernel_SVM, 5, 1/11, 1, 1,1e-2, 1/11 , 1, False, None, 0, "poly",6)
+    np.save("llrSVM.npy", llrSVM)
+    llrSVM = np.load("./llrSVM.npy")
+    llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11, "SVM")
+    Bayes_error_plots(llrSVM, L, "SVM")
+
+    _, llrSVM = SVM.k_fold_cross_validation(DN, L,SVM.kernel_SVM, 5, 1/11, 1, 1,1e-2, 1/11 , 1, False, None, 0, "poly",6)
+    np.save("llrSVM_cal.npy", llrSVM)
+    llrSVM = np.load("./llrSVM_cal.npy")
+    llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11,  "SVM calibrated")
+    Bayes_error_plots(llrSVMcal, L, "SVM_cal")
+    
+    
+    
+    
+   
+    
+    
+    
+    
+    
+    
+    
+    
     _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
     np.save("llrGMM_cal.npy", llrGMM)
     llrGMM = np.load("./llrGMM_cal.npy")
