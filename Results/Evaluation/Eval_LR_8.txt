@@ -1,8 +1,8 @@
 8 
-lambda : 0 , minDCF: 0.2473208898944193 
- lambda : 1e-06 , minDCF: 0.25135180995475115 
- lambda : 0.0001 , minDCF: 0.2521644042232277 
- lambda : 0.01 , minDCF: 0.25125754147812973 
- lambda : 1 , minDCF: 0.25661199095022624 
- lambda : 100 , minDCF: 0.2934445701357466 
+lambda : 0 , minDCF: 0.2777582956259427 
+ lambda : 1e-06 , minDCF: 0.2702790346907994 
+ lambda : 0.0001 , minDCF: 0.26966440422322774 
+ lambda : 0.01 , minDCF: 0.27390460030165914 
+ lambda : 1 , minDCF: 0.26643476621417794 
+ lambda : 100 , minDCF: 0.2900904977375566 
  
