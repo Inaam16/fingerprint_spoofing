@@ -54,39 +54,62 @@ if __name__ == "__main__":
 
 
     ### EVAL SVM ###
-    # filename = "./Results/Evaluation/Eval_SVM_poly.txt"
+    filename = "./Results/Evaluation/Eval_SVM_quad.txt"
 
 
-    # C_val = [1e-5, 1e-4, 1e-2 ,1e-1, 1, 10 ]
-    # with open(filename, "w") as f:
-    #     for svm_k in ["RBF", "poly"]:
-    #         f.write(f"{svm_k} \n")
-    #         for K in [0,1]:
-    #             f.write(f"K: {K} \n")
-    #             for C in C_val:
-    #                 _, minDCF_svm = SVM.kernel_SVM(DNTR, LTR, DNTE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1)
-    #                 f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
-    #                 print(minDCF_svm)
+    C_val = [1e-5, 1e-4, 1e-2 ,1e-1, 1, 10 ]
+    gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
+    with open(filename, "w") as f:
+        for svm_k in ["RBF", "poly"]:
+            f.write(f"{svm_k} \n")
+            if svm_k == "poly":
+                for K in [0,1]:
+                    f.write(f"K: {K} \n")
+                    for C in C_val:
+                        _, minDCF_svm = SVM.kernel_SVM(DNTR, LTR, DNTE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1)
+                        f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
+                        print(minDCF_svm)
+            else:
+                for pca in [6, None]:
+                    f.write(f"{pca} \n")
+                    if pca == 6:
+                        DT = DNTR_6
+                        DE = DNTE_6
+                    else:
+                        DT = DNTR
+                        DE = DNTE
+                    for g in gamma_val:
+                        print(f"g: {g}")
+                        K = 1
+                        for C in C_val:
+                            print(f"C: {C}")
+                            _, minDCF_svm = SVM.kernel_SVM(DT, LTR, DE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=g)
+                            f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
+                            print(minDCF_svm)
 
 
+    filename = "./Results/Evaluation/Eval_GMM"
 
-    ### EVAL GMM ###
-    # filename = "../Results/Evaluation/Eval_GMM"
-    # with open(filename, "w") as f:
-    #     for pca in [6, None]:
-    #         f.write(f"PCA: {pca} \n")
-    #         if pca == 6:
-    #             DT = DTR_6
-    #             DE = DTE_6
-    #         else:
-    #             DT = DTR
-    #             DE = DTE
-    #         for tied0 in [True, False]:
-    #             f.write(f"Tied0: {tied0}")
-    #             for tied1 in [True, False]:
-    #                 f.write(f"Tied1: {tied1}")
-    #                 for n0 in [4,8]:
-    #                     _, minDCF_gmm = GMM.GMM_classifier_1(DTR, LTR, DTE, LTE, 2, n0, 2, True, tied0, True, tied1, 1/11, 1, 1)
-    #                     f.write(f"({n0},2) min DCF: {minDCF_gmm} \n")
-    #                     print(minDCF_gmm)
+    with open(filename, "w") as f:
+        f.write(f"PCA: {pca} \n")
+        for pca in [6, None]:
+            if pca == 6:
+                DT = DTR_6
+                DE = DTE_6
+            else:
+                DT = DTR
+                DE = DTE
+            for tied0 in [True, False]:
+                f.write(f"Tied0: {tied0}")
+                for tied1 in [True, False]:
+                    f.write(f"Tied1: {tied1}")
+                    for n0 in [4,8]:
+                        _, minDCF_gmm = GMM.GMM_classifier_1(DTR, LTR, DTE, LTE, 2, n0, 2, True, tied0, True, tied1, 1/11, 1, 1)
+                        f.write(f"({n0},2) min DCF: {minDCF_gmm} \n")
+                        print(minDCF_gmm)
+
+        
+
+
+    
 
