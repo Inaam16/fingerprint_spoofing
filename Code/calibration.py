@@ -4,6 +4,7 @@ from Metrics import act_DCF, optimal_Bayes_decisions, min_DCF, confusion_matrix,
 import logistic_regression as lr
 from Utilities import load
 import GMM
+import matplotlib.pyplot as plt
 # Perform cross validation to evaluate score calibration (scores are 
 # calibrated with a linear logistic regression model)
 def k_fold_calibration(D, L, k, pi, Cfp, Cfn, pi_T, l, seed=0, just_cal = False):
@@ -56,7 +57,7 @@ def k_fold_calibration(D, L, k, pi, Cfp, Cfn, pi_T, l, seed=0, just_cal = False)
         M = confusion_matrix(L, opt_th_decisions, 2)
         _, actDCF_estimated = Bayes_risk(M, pi, Cfn, Cfp)
 
-    return actDCF_cal, actDCF_estimated
+    return actDCF_cal, actDCF_estimated, llr_cal
 
 
 # Perform cross validation to evaluate score calibration techniques and print results
@@ -67,24 +68,28 @@ def analyse_scores_kfold(llr, pi, Cfn, Cfp, L, k, pi_T, name):
     min_actDCF_cal = 1
     best_lambda = 0
     actDCF_estimated = 0
+    min_llr_cal = []
     for l in [0, 1e-6, 1e-3, 0.1, 1]:
         if l == 1: # last iteration, calculate also optimal estimated threshold
-            actDCF_cal, actDCF_estimated = k_fold_calibration(llr.reshape([1,llr.shape[0]]), L, k, pi, Cfp, Cfn, pi_T, l, just_cal=False)
+            actDCF_cal, actDCF_estimated, llrcal = k_fold_calibration(llr.reshape([1,llr.shape[0]]), L, k, pi, Cfp, Cfn, pi_T, l, just_cal=False)
         else: # not the last iteration, just evaluate score calibration
-            actDCF_cal, actDCF_estimated = k_fold_calibration(llr.reshape([1,llr.shape[0]]), L, k, pi, Cfp, Cfn, pi_T, l, just_cal=True)
+            actDCF_cal, actDCF_estimated, llrcal = k_fold_calibration(llr.reshape([1,llr.shape[0]]), L, k, pi, Cfp, Cfn, pi_T, l, just_cal=True)
 
         if actDCF_cal < min_actDCF_cal:
             min_actDCF_cal = actDCF_cal
             best_lambda = l
+            min_llr_cal = llrcal
 
     print("\n\n******* "+name+" *********\n")
     print("act DCF: "+str(actDCF))
     print("act DCF, calibrated scores (logistic regression): "+ str(min_actDCF_cal) + " with best lambda: " + str(best_lambda))
     print("act DCF, estimated threshold: "+ str(actDCF_estimated))
 
+    return min_llr_cal
 
 
-def Bayes_error_plots(llr, true_labels):
+
+def Bayes_error_plots(llr, true_labels, title):
     effPriorLogOdds = np.linspace(-3,3,21)
     DCF = np.zeros([effPriorLogOdds.shape[0]])
     minDCF = np.zeros([effPriorLogOdds.shape[0]])
@@ -95,6 +100,15 @@ def Bayes_error_plots(llr, true_labels):
         M = confusion_matrix(true_labels, pred, 2)
         _, DCF[index] = Bayes_risk(M, pi_tilde, 1, 1)
         minDCF[index], _ = min_DCF(llr, pi_tilde, 1, 1, true_labels)
+    plt.figure()
+    plt.plot(effPriorLogOdds, DCF, label='DCF', color='r')
+    plt.plot(effPriorLogOdds, minDCF, label='minDCF', color='b')
+    plt.xlabel(r'$log\frac{\pi}{1-\pi}$')
+    plt.ylabel("DCF")
+    plt.legend()
+    plt.savefig(f"./Results/LR/{title}")
+    plt.title(title)
+    plt.close()
 
     return DCF, minDCF
 
@@ -102,15 +116,31 @@ def Bayes_error_plots(llr, true_labels):
 if __name__ == "__main__":
 
     D, L = load("./Train.txt")
-    preprocessor = lr.partial(lr.PCA_preproccessor, dim=6)
-    _, llrLR = lr.k_fold_cross_validation(D, L, lr.quadratic_logistic_regression, 5, 1/11, 1, 1, 0, 1/11, preprocessor = preprocessor)
-    np.save("llrLR.npy", llrLR)
-    llrLR = np.load("./llrLR.npy")
-    analyse_scores_kfold(llrLR, 1/11,1, 1, L, 5, 1/11, "LR")
+    # preprocessor = lr.partial(lr.PCA_preproccessor, dim=6)
+    # _, llrLR = lr.k_fold_cross_validation(D, L, lr.quadratic_logistic_regression, 5, 1/11, 1, 1, 0, 1/11, preprocessor = preprocessor)
+    # np.save("llrLR.npy", llrLR)
+    # llrLR = np.load("./llrLR.npy")
+    # llrcal =  analyse_scores_kfold(llrLR, 1/11,1, 1, L, 5, 1/11, "LR calibrated")
+    # Bayes_error_plots(llrcal, L, "LR_calibrated")
+
+    # D, L = load("./Train.txt")
+    # preprocessor = lr.partial(lr.PCA_preproccessor, dim=6)
+    # _, llrLR = lr.k_fold_cross_validation(D, L, lr.quadratic_logistic_regression, 5, 1/11, 1, 1, 0, 1/11, preprocessor = preprocessor)
+    # np.save("llrLR.npy", llrLR)
+    # llrLR = np.load("./llrLR.npy")
+    # llrcal =  analyse_scores_kfold(llrLR, 1/11,1, 1, L, 5, 1/11, "LR")
+    # Bayes_error_plots(llrLR, L, "LR")
 
 
 
     _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
     np.save("llrGMM.npy", llrGMM)
     llrGMM = np.load("./llrGMM.npy")
-    analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11, "GMM")
+    llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11, "GMM")
+    Bayes_error_plots(llrGMM, L, "GMM")
+
+    _, llrGMM = GMM.k_fold_cross_validation_1(D, L,5, 1/11, 1, 1, 8, 2, True, False, True, False, pca_dim=None, seed = 0)
+    np.save("llrGMM.npy", llrGMM)
+    llrGMM = np.load("./llrGMM.npy")
+    llrGMMcal = analyse_scores_kfold(llrGMM, 1/11, 1, 1, L, 5, 1/11,  "GMM calibrated")
+    Bayes_error_plots(llrGMMcal, L, "GMM")
