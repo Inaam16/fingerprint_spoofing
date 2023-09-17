@@ -7,11 +7,13 @@ import SVM
 from MLCore import Z_score, Z_score_eval, PCA, PCA_preproccessor
 import matplotlib.pyplot as plt
 
+import calibration
+
 if __name__ == "__main__":
 
 
-    DTR, LTR = load("../Train.txt")
-    DTE, LTE = load("../Test.txt")  
+    DTR, LTR = load("./Train.txt")
+    DTE, LTE = load("./Test.txt")  
 
 
     # Z-score normalization
@@ -53,19 +55,19 @@ if __name__ == "__main__":
 
 
     ### EVAL SVM Polynomial ###
-    filename = "../Results/Evaluation/Eval_SVM_quad_pca6.txt"
-    C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]
+    # filename = "../Results/Evaluation/Eval_SVM_quad_pca6.txt"
+    # C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]
     
-    with open(filename, "w") as f:
-            svm_k="poly"
-            f.write(f"{svm_k} \n")
-            #if svm_k == "poly":
-            for K in [0,1]:
-                f.write(f"K: {K} \n")
-                for C in C_val:
-                    _, minDCF_svm = SVM.kernel_SVM(DNTR_6, LTR, DNTE_6, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1)
-                    f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
-                    print(minDCF_svm)
+    # with open(filename, "w") as f:
+    #         svm_k="poly"
+    #         f.write(f"{svm_k} \n")
+    #         #if svm_k == "poly":
+    #         for K in [0,1]:
+    #             f.write(f"K: {K} \n")
+    #             for C in C_val:
+    #                 _, minDCF_svm = SVM.kernel_SVM(DNTR_6, LTR, DNTE_6, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1)
+    #                 f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
+    #                 print(minDCF_svm)
     
                 
     ### EVAL SVM  RBF ###
@@ -122,4 +124,45 @@ if __name__ == "__main__":
 
 
     
+    ### Calibration ###
+
+    #Best model Quadratic LR:
+    # lamda = 0
+    # PCA = 6
+
+    llrLR , _ = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, 0, 1/11, 1/11, 1, 1)
+    np.save("llrLR_eval_cal.npy", llrLR)
+    llrLR = np.load("./llrLR_eval_cal.npy")
+    llrLRcal = calibration.analyse_scores_kfold(llrLR, 1/11, 1, 1, LTE, 5, 1/11,  "GMM calibrated")
+    calibration.Bayes_error_plots(llrLRcal, LTE, "GMM_calibrated")
+
+    llrLR , _ = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, 0, 1/11, 1/11, 1, 1)
+    np.save("llrLR_eval.npy", llrLR)
+    llrLR = np.load("./llrLR_eval.npy")
+    llrLRcal = calibration.analyse_scores_kfold(llrLR, 1/11, 1, 1, LTE, 5, 1/11,  "LR_eval")
+    calibration.Bayes_error_plots(llrLR, LTE, "LR_eval")
+
+
+
+    #Best model GMM:
+    # True True True False
+    # no pca
+    # 8,2
+
+    # llrGMM, _ = GMM.GMM_classifier_1(DTR, LTR, DTE, LTE, 2, 8, 2, True, True, True, False, 1/11, 1, 1)
+    # np.save("llrGMM_eval_cal.npy", llrGMM)
+    # llrGMM = np.load("./llrGMM_eval_cal.npy")
+    # llrGMMcal = calibration.analyse_scores_kfold(llrGMM, 1/11, 1, 1, LTE, 5, 1/11,  "GMM_eval")
+    # calibration.Bayes_error_plots(llrGMM, LTE, "GMM_eval")
+
+
+
+    # llrGMM, _ = GMM.GMM_classifier_1(DTR, LTR, DTE, LTE, 2, 8, 2, True, True, True, False, 1/11, 1, 1)
+    # np.save("llrGMM_eval_cal.npy", llrGMM)
+    # llrGMM = np.load("./llrGMM_eval_cal.npy")
+    # llrGMMcal = calibration.analyse_scores_kfold(llrGMM, 1/11, 1, 1, LTE, 5, 1/11,  "GMM calibrated_eval")
+    # calibration.Bayes_error_plots(llrGMMcal, LTE, "GMM_calibrated_eval")
+
+
+    # images were moved to the ./Results/Evaluation folder
 
