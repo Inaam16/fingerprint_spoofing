@@ -110,7 +110,7 @@ def Bayes_error_plots(llr, true_labels, title):
     plt.xlabel(r'$log\frac{\pi}{1-\pi}$')
     plt.ylabel("DCF")
     plt.legend()
-    plt.savefig(f"../Results/SVM/{title}")
+    plt.savefig(f"./Results/SVM/{title}")
     plt.title(title)
     plt.close()
 
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     # llrSVMcal = analyse_scores_kfold(llrSVM, 1/11, 1, 1, L, 5, 1/11,  "SVM calibrated")
     # Bayes_error_plots(llrSVMcal, L, "SVM_cal")
     
-    
+   
     
     ###############  Fusion ##############
     #Combining our best models two by two:
