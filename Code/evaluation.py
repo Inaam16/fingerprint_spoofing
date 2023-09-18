@@ -53,44 +53,44 @@ if __name__ == "__main__":
 
 
     ### EVAL SVM Polynomial ###
-    filename = "../Results/Evaluation/Eval_SVM_quad_pca6.txt"
-    C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]
+    # filename = "../Results/Evaluation/Eval_SVM_quad_pca6.txt"
+    # C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]
     
-    with open(filename, "w") as f:
-            svm_k="poly"
-            f.write(f"{svm_k} \n")
-            #if svm_k == "poly":
-            for K in [0,1]:
-                f.write(f"K: {K} \n")
-                for C in C_val:
-                    _, minDCF_svm = SVM.kernel_SVM(DNTR_6, LTR, DNTE_6, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1)
-                    f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
-                    print(minDCF_svm)
+    # with open(filename, "w") as f:
+    #         svm_k="poly"
+    #         f.write(f"{svm_k} \n")
+    #         #if svm_k == "poly":
+    #         for K in [0,1]:
+    #             f.write(f"K: {K} \n")
+    #             for C in C_val:
+    #                 _, minDCF_svm = SVM.kernel_SVM(DNTR_6, LTR, DNTE_6, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1)
+    #                 f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
+    #                 print(minDCF_svm)
     
                 
     ### EVAL SVM  RBF ###
-     # filename_rbf= "../Results/Evaluation/Eval_SVM_rbf.txt"
-     # C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]     
-     # gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
-     # with open(filename, "w") as f:
-     #         svm_k="RBF"
-     #         f.write(f"{svm_k} \n")
-     #            for pca in [6, None]:
-     #                  f.write(f"{pca} \n")
-     #                  if pca == 6:
-     #                      DT = DNTR_6
-     #                      DE = DNTE_6
-     #                  else:
-     #                      DT = DNTR
-     #                      DE = DNTE
-     #                  for g in gamma_val:
-     #                      print(f"gamma: {g} \n")
-     #                      K = 1
-     #                      for C in C_val:
-     #                          print(f"C: {C} \n")
-     #                          _, minDCF_svm = SVM.kernel_SVM(DT, LTR, DE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=g)
-     #                          f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
-     #                          print(minDCF_svm)
+    filename_rbf= "../Results/Evaluation/Eval_SVM_rbf_all_norm.txt"
+    C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]     
+    gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
+    with open(filename_rbf, "w") as f:
+            svm_k="RBF"
+            f.write(f"{svm_k} \n")
+            for pca in [6, None]:
+                  f.write(f"{pca} \n")
+                  if pca == 6:
+                      DT = DNTR_6
+                      DE = DNTE_6
+                  else:
+                      DT = DNTR
+                      DE = DNTE
+                  for g in gamma_val:
+                      print(f"gamma: {g} \n")
+                      K = 1
+                      for C in C_val:
+                          print(f"C: {C} \n")
+                          _, minDCF_svm = SVM.kernel_SVM(DT, LTR, DE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=g)
+                          f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
+                          print(minDCF_svm)
 
 
 
