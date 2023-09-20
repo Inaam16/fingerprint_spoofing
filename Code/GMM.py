@@ -339,23 +339,23 @@ if __name__ == "__main__":
 
 
 
-    D, L = load("./Train.txt")
+    D, L = load("../Train.txt")
     DN = Z_score(D)
     components_val0 = [2, 4, 8, 16]
     components_val1 = [1, 2, 4]
 
-    for tied0 in [True, False]:
-        for diag0 in [True, False]:
-            for tied1 in [True, False]:
-                for diag1 in [True, False]:
-                    for i in components_val0:
-                        for j in components_val1:
-                            print(f"component {i}, {j},{diag0}, {tied0}, {diag1} {tied1} : ")
-                            minDCF = results_GMM(D, L, i, j, 5, 1/11, 1, 1, diag0, tied0, diag1, tied1, pca_dim=None)
-                            filename = "./Results/GMM/GMM_results.txt"
-                            with open(filename, "w") as f:
-                                f.write(f"\ncomponents ({i}, {j} {diag0} {tied0} {diag1} {tied1}): "  + "\n")
-                            print(f"{minDCF} + '\n'")
+    # for tied0 in [True, False]:
+    #     for diag0 in [True, False]:
+    #         for tied1 in [True, False]:
+    #             for diag1 in [True, False]:
+    #                 for i in components_val0:
+    #                     for j in components_val1:
+    #                         print(f"component {i}, {j},{diag0}, {tied0}, {diag1} {tied1} : ")
+    #                         minDCF = results_GMM(D, L, i, j, 5, 1/11, 1, 1, diag0, tied0, diag1, tied1, pca_dim=None)
+    #                         filename = "./Results/GMM/GMM_results.txt"
+    #                         with open(filename, "w") as f:
+    #                             f.write(f"\ncomponents ({i}, {j} {diag0} {tied0} {diag1} {tied1}): "  + "\n")
+    #                         print(f"{minDCF} + '\n'")
 
 
     
@@ -387,5 +387,7 @@ if __name__ == "__main__":
     # plt.legend()
     # plt.savefig("../Visualization/GMM.png")
 
-                                  ####### Evaluation #######
+     #Training the best GMM model on the working point 0.2
+    minDCF = results_GMM(D, L, 8, 2, 5, 0.2, 1, 1, True, False, True, False, pca_dim=None)
+    print(minDCF)                          
 
