@@ -110,7 +110,7 @@ def Bayes_error_plots(llr, true_labels, title):
     plt.xlabel(r'$log\frac{\pi}{1-\pi}$')
     plt.ylabel("DCF")
     plt.legend()
-    plt.savefig(f"./Results/SVM/{title}")
+    plt.savefig(f"../Results/SVM/{title}")
     plt.title(title)
     plt.close()
 

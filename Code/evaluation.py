@@ -12,8 +12,8 @@ import calibration
 if __name__ == "__main__":
 
 
-    DTR, LTR = load("./Train.txt")
-    DTE, LTE = load("./Test.txt")  
+    DTR, LTR = load("../Train.txt")
+    DTE, LTE = load("../Test.txt")  
 
 
     # Z-score normalization
@@ -71,28 +71,28 @@ if __name__ == "__main__":
     
                 
     ### EVAL SVM  RBF ###
-    filename_rbf= "../Results/Evaluation/Eval_SVM_rbf_all_norm.txt"
-    C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]     
-    gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
-    with open(filename_rbf, "w") as f:
-            svm_k="RBF"
-            f.write(f"{svm_k} \n")
-            for pca in [6, None]:
-                  f.write(f"{pca} \n")
-                  if pca == 6:
-                      DT = DNTR_6
-                      DE = DNTE_6
-                  else:
-                      DT = DNTR
-                      DE = DNTE
-                  for g in gamma_val:
-                      print(f"gamma: {g} \n")
-                      K = 1
-                      for C in C_val:
-                          print(f"C: {C} \n")
-                          _, minDCF_svm = SVM.kernel_SVM(DT, LTR, DE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=g)
-                          f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
-                          print(minDCF_svm)
+    # filename_rbf= "../Results/Evaluation/Eval_SVM_rbf_all_norm.txt"
+    # C_val = [ 1e-4, 1e-2 ,1e-1, 1, 10 ]     
+    # gamma_val = [np.exp(-2), np.exp(-3),np.exp(-4)]
+    # with open(filename_rbf, "w") as f:
+    #         svm_k="RBF"
+    #         f.write(f"{svm_k} \n")
+    #         for pca in [6, None]:
+    #               f.write(f"{pca} \n")
+    #               if pca == 6:
+    #                   DT = DNTR_6
+    #                   DE = DNTE_6
+    #               else:
+    #                   DT = DNTR
+    #                   DE = DNTE
+    #               for g in gamma_val:
+    #                   print(f"gamma: {g} \n")
+    #                   K = 1
+    #                   for C in C_val:
+    #                       print(f"C: {C} \n")
+    #                       _, minDCF_svm = SVM.kernel_SVM(DT, LTR, DE, LTE, C, svm_k, 1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=g)
+    #                       f.write(f"C: {C}, minDCF: {minDCF_svm} \n ")
+    #                       print(minDCF_svm)
 
 
 
@@ -124,23 +124,23 @@ if __name__ == "__main__":
 
 
     
-    ### Calibration ###
+    ### Calibration for best evaluation models ###
 
     #Best model Quadratic LR:
     # lamda = 0
     # PCA = 6
 
-    llrLR , _ = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, 0, 1/11, 1/11, 1, 1)
-    np.save("llrLR_eval_cal.npy", llrLR)
-    llrLR = np.load("./llrLR_eval_cal.npy")
-    llrLRcal = calibration.analyse_scores_kfold(llrLR, 1/11, 1, 1, LTE, 5, 1/11,  "GMM calibrated")
-    calibration.Bayes_error_plots(llrLRcal, LTE, "GMM_calibrated")
+    # llrLR , _ = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, 0, 1/11, 1/11, 1, 1)
+    # np.save("llrLR_eval_cal.npy", llrLR)
+    # llrLR = np.load("./llrLR_eval_cal.npy")
+    # llrLRcal = calibration.analyse_scores_kfold(llrLR, 1/11, 1, 1, LTE, 5, 1/11,  "LR calibrated")
+    # calibration.Bayes_error_plots(llrLRcal, LTE, "LR_calibrated")
 
-    llrLR , _ = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, 0, 1/11, 1/11, 1, 1)
-    np.save("llrLR_eval.npy", llrLR)
-    llrLR = np.load("./llrLR_eval.npy")
-    llrLRcal = calibration.analyse_scores_kfold(llrLR, 1/11, 1, 1, LTE, 5, 1/11,  "LR_eval")
-    calibration.Bayes_error_plots(llrLR, LTE, "LR_eval")
+    # llrLR , _ = lr.quadratic_logistic_regression(DTR_6, LTR, DTE_6, LTE, 0, 1/11, 1/11, 1, 1)
+    # np.save("llrLR_eval.npy", llrLR)
+    # llrLR = np.load("./llrLR_eval.npy")
+    # llrLRcal = calibration.analyse_scores_kfold(llrLR, 1/11, 1, 1, LTE, 5, 1/11,  "LR_eval")
+    # calibration.Bayes_error_plots(llrLR, LTE, "LR_eval")
 
 
 
@@ -162,6 +162,26 @@ if __name__ == "__main__":
     # llrGMM = np.load("./llrGMM_eval_cal.npy")
     # llrGMMcal = calibration.analyse_scores_kfold(llrGMM, 1/11, 1, 1, LTE, 5, 1/11,  "GMM calibrated_eval")
     # calibration.Bayes_error_plots(llrGMMcal, LTE, "GMM_calibrated_eval")
+
+
+    #Best model SVM 
+    #RBF kernel SVM, C=10 , logGamma -3,noPCA, Znorm=true, Rebal=false,K=1
+    K=1
+    
+
+    #llrSVM, _ = SVM.kernel_SVM(DNTR, LTR, DNTE, LTE, 10, "RBF",1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=np.exp(-3))
+    # np.save("llrSVM_eval.npy",llrSVM)
+    # llrSVM= np.load("./llrSVM_eval.npy")
+    #  llrSVMcal = calibration.analyse_scores_kfold(llrSVM, 1/11, 1, 1, LTE, 5, 1/11,  "SVM_eval")
+    # calibration.Bayes_error_plots(llrSVM, LTE, "SVM_eval")
+  
+
+    llrSVM, _ = SVM.kernel_SVM(DNTR, LTR, DNTE, LTE, 10, "RBF",1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=np.exp(-3))
+    np.save("llrSVM_eval_cal.npy",llrSVM)
+    llrSVM= np.load("./llrSVM_eval_cal.npy")
+    llrSVMcal = calibration.analyse_scores_kfold(llrSVM, 1/11, 1, 1, LTE, 5, 1/11,  "SVM calibrated")
+    calibration.Bayes_error_plots(llrSVMcal, LTE, "SVM_calibrated")
+
 
 
     # images were moved to the ./Results/Evaluation folder
