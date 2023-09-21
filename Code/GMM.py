@@ -112,52 +112,9 @@ def LBG(X, gmm, t, alpha, psi, diag, tied):
 
     return gmm, ll
 
-# Train a GMM classifier (one GMM for each class) and evaluate it on training data
-def GMM_classifier(DTR, LTR, DTE, LTE, n_classes, components0, components1, pi, Cfn, Cfp, diag, tied, t = 1e-6, psi = 0.01, alpha = 0.1, f=0, type=""):
-
-    S = np.zeros([n_classes, DTE.shape[1]])
-    all_gmm = []
-
-    # Repeat until the desired number of components is reached, but analyze also
-    # intermediate models with less components
-    for count in range(int(np.log2(components0))):
-        for count1 in range(int(np.log2(components1))):
-        # Train one GMM for each class
-            for c in range(n_classes):
-                if count == 0:
-                    # Start from max likelihood solution for one component
-                    covNew = np.cov(DTR[:, LTR == c])
-                    # Impose the constraint on the covariance matrix
-                    U, s, _ = np.linalg.svd(covNew)
-                    s[s<psi] = psi
-                    covNew = np.dot(U, s.reshape([s.shape[0], 1])*U.T)
-                    starting_gmm = [(1.0, np.mean(DTR[:, LTR == c], axis = 1), covNew)]
-                    all_gmm.append(starting_gmm)
-                else:
-                    starting_gmm = all_gmm[c]
-
-                # Train the new components and compute log-densities
-                new_gmm, _ = LBG(DTR[:, LTR == c], starting_gmm, t, alpha, psi, diag, tied)
-                all_gmm[c] = new_gmm
-                logdens, _ = logpdf_GMM(DTE, new_gmm)
-                S[c, :] = logdens
-
-            # Compute minDCF for the model with the current number of components
-            llr = compute_llr(S)
-            minDCF, _ = min_DCF(llr, pi, Cfn, Cfp, LTE)
-
-            if f == 0:
-                print("Components: %d,      min DCF: %f" % (2**(count + 1), minDCF))
-            else:
-                # Save results on file
-                print("Components: %d,      min DCF: %f" % (2**(count + 1), minDCF))
-                f.write("\ncomponents: " + str(2**(count + 1)) + "\n")
-                f.write("\n" + type + ": " + str(minDCF) + "\n")
-
-    return llr, minDCF
 
 
-
+# Train a GMM classifier (one GMM for each class) and evaluate it on training dat
 def GMM_classifier_1(DTR, LTR, DTE, LTE, n_classes, components0, components1, diag0, tied0, diag1, tied1, pi, Cfn, Cfp, t = 1e-6, psi = 0.01, alpha = 0.1, f=1, type=""):
     
     
