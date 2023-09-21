@@ -116,7 +116,8 @@ def Bayes_error_plots(llr, true_labels, title):
 
     return DCF, minDCF
 
-
+###NOTE: THE FUSION CODE WAS TRIED BUT NOT REPORTED IN THE REPORT CAUSE WE ARE UNCERTAIN OF THE RESULTS 
+## AND THEY ARE PROBABLY WRONG
 
 # Perform cross validation to evaluate fusion of 2 models and print results
 def analyse_fusion_kfold2(D1, D2, L, k, pi, Cfp, Cfn, pi_T, name):
