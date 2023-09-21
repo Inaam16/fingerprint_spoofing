@@ -176,13 +176,36 @@ if __name__ == "__main__":
     # calibration.Bayes_error_plots(llrSVM, LTE, "SVM_eval")
   
 
-    llrSVM, _ = SVM.kernel_SVM(DNTR, LTR, DNTE, LTE, 10, "RBF",1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=np.exp(-3))
-    np.save("llrSVM_eval_cal.npy",llrSVM)
-    llrSVM= np.load("./llrSVM_eval_cal.npy")
-    llrSVMcal = calibration.analyse_scores_kfold(llrSVM, 1/11, 1, 1, LTE, 5, 1/11,  "SVM calibrated")
-    calibration.Bayes_error_plots(llrSVMcal, LTE, "SVM_calibrated")
+    # llrSVM, _ = SVM.kernel_SVM(DNTR, LTR, DNTE, LTE, 10, "RBF",1/11, 1, 1, 1/11, d=2, csi = K**0.5, rebalancing=False , c=1, gamma=np.exp(-3))
+    # np.save("llrSVM_eval_cal.npy",llrSVM)
+    # llrSVM= np.load("./llrSVM_eval_cal.npy")
+    # llrSVMcal = calibration.analyse_scores_kfold(llrSVM, 1/11, 1, 1, LTE, 5, 1/11,  "SVM calibrated")
+    # calibration.Bayes_error_plots(llrSVMcal, LTE, "SVM_calibrated")
 
 
 
     # images were moved to the ./Results/Evaluation folder
+
+  
+
+    ##Evaluation:
+    # _, minDCF_svm = SVM.kernel_SVM(DNTR_6, LTR, DNTE_6, LTE, 0.01, "poly", 1/11, 1, 1, 1/11, d=2, csi = 1**0.5, rebalancing=False , c=1)
+    # print(minDCF_svm)
+    
+    _, minDCF_gmm = GMM.GMM_classifier_1(DTR, LTR, DTE, LTE, 2, 8, 2, True, False, True, False, 0.2, 1, 1)
+    print(minDCF_gmm)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
