@@ -1,0 +1,25 @@
+******* GMM + LR ********
+min DCF: 0.2421106557377049
+act DCF: 0.4537295081967213
+best lambda: 0
+
+
+
+******* GMM + SVM ********
+min DCF: 0.24366803278688526
+act DCF: 0.93375
+best lambda: 1
+
+
+
+******* LR + SVM ********
+min DCF: 0.2421106557377049
+act DCF: 0.4537295081967213
+best lambda: 0
+
+
+
+******* SVM + LR + GMM ********
+min DCF: 0.2421106557377049
+act DCF: 0.4537295081967213
+best lambda: 0
